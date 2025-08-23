@@ -1,0 +1,97 @@
+#include <dt-bindings/zmk/keys.h>
+#include <behaviors.dtsi>
+#include <dt-bindings/zmk/kscan_mock.h>
+
+/ {
+    chosen {
+        zmk,kscan = &kscan0;
+        zmk,matrix_transform = &default_transform;
+    };
+
+    /* Mock SPI bus for BlackBerry trackpad */
+    test_spi: test_spi {
+        compatible = "zephyr,spi-emul-controller";
+        clock-frequency = <1000000>;
+        #address-cells = <1>;
+        #size-cells = <0>;
+
+        bb_trackpad: bb_trackpad@0 {
+            compatible = "blackberry,trackpad";
+            reg = <0>;
+            spi-max-frequency = <1000000>;
+            irq-gpios = <&gpio0 7 GPIO_ACTIVE_LOW>;
+            scale-x = <2>;
+            scale-y = <2>;
+            invert-x;
+            /* invert-y; */
+        };
+    };
+
+    gpio0: gpio@300 {
+        compatible = "zephyr,gpio-emul";
+        reg = <0x300 4>;
+        gpio-controller;
+        #gpio-cells = <2>;
+        ngpios = <32>;
+    };
+
+    default_transform: keymap_transform_0 {
+        compatible = "zmk,matrix-transform";
+        columns = <2>;
+        rows = <2>;
+        map = <
+            RC(0,0) RC(0,1)
+            RC(1,0) RC(1,1)
+        >;
+    };
+
+    kscan0: kscan {
+        compatible = "zmk,kscan-mock";
+        label = "KSCAN_MOCK";
+        rows = <2>;
+        columns = <2>;
+        exit-after;
+        events = <>;
+    };
+
+    /* Input processor chain for trackpad */
+    trackpad_input_processors {
+        compatible = "zmk,input-processor-chain";
+
+        scaler: input_processor_scaler {
+            compatible = "zmk,input-processor-scaler";
+            #input-processor-cells = <0>;
+            x-multiplier = <1>;
+            y-multiplier = <1>;
+            scale-multiplier = <1>;
+        };
+
+        temp_layer: input_processor_temp_layer {
+            compatible = "zmk,input-processor-temp-layer";
+            #input-processor-cells = <0>;
+            layer = <1>;
+            timeout-ms = <2000>;
+            require-prior-idle-ms = <500>;
+            excluded-positions = <0 1>;  /* Don't affect first two keys */
+        };
+    };
+
+    keymap {
+        compatible = "zmk,keymap";
+
+        default_layer {
+            bindings = <
+                &kp A     &kp B
+                &mkp LCLK &mkp RCLK
+            >;
+        };
+
+        /* Mouse layer activated by trackpad movement */
+        mouse_layer {
+            bindings = <
+                &mwh SCROLL_UP   &mwh SCROLL_DOWN
+                &mkp LCLK        &mkp RCLK
+            >;
+        };
+    };
+};

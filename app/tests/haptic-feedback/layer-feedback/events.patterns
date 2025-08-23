@@ -1,0 +1,4 @@
+s/.*haptic_play_waveform: waveform=\([0-9]*\)/HAPTIC_WAVEFORM: \1/p
+s/.*haptic_layer_feedback: layer=\([0-9]*\) activate=\([0-9]*\)/HAPTIC_LAYER: \1,\2/p
+s/.*haptic_key_feedback: intensity=\([0-9]*\)/HAPTIC_KEY: \1/p
+s/.*layer_state_changed: layer=\([0-9]*\) active=\([0-9]*\)/LAYER_CHANGE: \1,\2/p

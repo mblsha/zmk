@@ -1,0 +1,13 @@
+pressed: usage_page 0x07 keycode 0x05 implicit_mods 0x00 explicit_mods 0x00
+TRACKPAD_MOTION: 0,-20
+SCROLL: vertical 4
+SCROLL_WHEEL: 1,4
+TRACKPAD_MOTION: 0,-15
+SCROLL: vertical 3
+SCROLL_WHEEL: 1,3
+released: usage_page 0x07 keycode 0x05 implicit_mods 0x00 explicit_mods 0x00
+pressed: usage_page 0x07 keycode 0x04 implicit_mods 0x00 explicit_mods 0x00
+TRACKPAD_MOTION: -20,0
+SCROLL: horizontal 4
+SCROLL_WHEEL: 2,4
+released: usage_page 0x07 keycode 0x04 implicit_mods 0x00 explicit_mods 0x00

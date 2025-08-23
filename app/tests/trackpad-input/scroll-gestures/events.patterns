@@ -1,0 +1,4 @@
+s/.*scroll_detected: direction=\([a-z]*\) magnitude=\([0-9]*\)/SCROLL: \1 \2/p
+s/.*scroll_acceleration: factor=\([0-9]*\)/SCROLL_ACCEL: \1/p
+s/.*trackpad_motion_detected: dx=\([-0-9]*\) dy=\([-0-9]*\)/TRACKPAD_MOTION: \1,\2/p
+s/.*scroll_wheel_event: direction=\([0-9]*\) clicks=\([0-9]*\)/SCROLL_WHEEL: \1,\2/p

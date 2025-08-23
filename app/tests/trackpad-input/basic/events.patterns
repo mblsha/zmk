@@ -1,0 +1,6 @@
+s/.*trackpad_motion_detected: dx=\([-0-9]*\) dy=\([-0-9]*\)/TRACKPAD_MOTION: \1,\2/p
+s/.*input_processor_scale: x=\([-0-9]*\) y=\([-0-9]*\)/INPUT_SCALED: \1,\2/p
+s/.*mouse_move_event: x=\([-0-9]*\) y=\([-0-9]*\)/MOUSE_MOVE: \1,\2/p
+s/.*temp_layer_activated: layer=\([0-9]*\)/LAYER_ACTIVATE: \1/p
+s/.*temp_layer_deactivated: layer=\([0-9]*\)/LAYER_DEACTIVATE: \1/p
+s/.*trackpad_interrupt: pin_state=\([0-9]*\)/TRACKPAD_IRQ: \1/p

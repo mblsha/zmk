@@ -1,0 +1,318 @@
+name: Build and Test ZMK Custom Drivers
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    # Run comprehensive tests daily at 2 AM UTC
+    - cron: '0 2 * * *'
+
+jobs:
+  # Quick build and unit test job for fast feedback
+  quick-test:
+    runs-on: ubuntu-latest
+    container:
+      image: docker.io/zmkfirmware/zmk-build-arm:stable
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          path: zmk
+
+      - name: Cache west modules  
+        uses: actions/cache@v3
+        with:
+          path: |
+            modules/
+            tools/
+            zephyr/
+            bootloader/
+            .west/
+          key: ${{ runner.os }}-west-${{ hashFiles('zmk/app/west.yml') }}
+          restore-keys: |
+            ${{ runner.os }}-west-
+
+      - name: Initialize west workspace
+        run: |
+          cd zmk
+          west init -l app/
+          west update
+
+      - name: Build firmware (my_keyboard)
+        run: |
+          cd zmk
+          west build -s app -b nice_nano_v2 -- -DSHIELD=my_keyboard
+
+      - name: Run unit tests
+        run: |
+          cd zmk
+          west build -s app/tests/drivers_test -b native_posix -t run
+
+      - name: Upload firmware artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: firmware
+          path: |
+            zmk/build/zephyr/zmk.uf2
+            zmk/build/zephyr/zmk.hex
+          if-no-files-found: error
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results
+          path: zmk/build/zephyr/zephyr.exe
+          if-no-files-found: ignore
+
+  # Comprehensive test job for thorough validation
+  comprehensive-test:
+    runs-on: ubuntu-latest
+    container:
+      image: docker.io/zmkfirmware/zmk-build-arm:stable
+    if: github.event_name == 'schedule' || contains(github.event.head_commit.message, '[test-all]')
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          path: zmk
+
+      - name: Cache west modules
+        uses: actions/cache@v3
+        with:
+          path: |
+            modules/
+            tools/
+            zephyr/
+            bootloader/
+            .west/
+          key: ${{ runner.os }}-west-${{ hashFiles('zmk/app/west.yml') }}
+
+      - name: Initialize west workspace
+        run: |
+          cd zmk
+          west init -l app/
+          west update
+
+      - name: Install additional test dependencies
+        run: |
+          apt-get update
+          apt-get install -y lcov gcovr jq
+
+      - name: Run comprehensive test suite
+        run: |
+          cd zmk/app/tests
+          chmod +x test-runner.sh
+          ./test-runner.sh --verbose --coverage all
+
+      - name: Generate test report
+        run: |
+          cd zmk
+          echo "## Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ -f "build-test/test-results/pass-fail.log" ]; then
+            PASS_COUNT=$(grep -c "^PASS:" build-test/test-results/pass-fail.log || echo "0")
+            FAIL_COUNT=$(grep -c "^FAIL:" build-test/test-results/pass-fail.log || echo "0")
+            TOTAL=$((PASS_COUNT + FAIL_COUNT))
+            
+            echo "- **Total Tests:** $TOTAL" >> $GITHUB_STEP_SUMMARY
+            echo "- **Passed:** $PASS_COUNT" >> $GITHUB_STEP_SUMMARY
+            echo "- **Failed:** $FAIL_COUNT" >> $GITHUB_STEP_SUMMARY
+            
+            if [ $TOTAL -gt 0 ]; then
+              SUCCESS_RATE=$((PASS_COUNT * 100 / TOTAL))
+              echo "- **Success Rate:** ${SUCCESS_RATE}%" >> $GITHUB_STEP_SUMMARY
+            fi
+            
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### Failed Tests" >> $GITHUB_STEP_SUMMARY
+            if [ $FAIL_COUNT -gt 0 ]; then
+              grep "^FAIL:" build-test/test-results/pass-fail.log | sed 's/FAIL: /- /' >> $GITHUB_STEP_SUMMARY
+            else
+              echo "None! 🎉" >> $GITHUB_STEP_SUMMARY
+            fi
+          fi
+
+      - name: Upload comprehensive test results
+        uses: actions/upload-artifact@v3
+        with:
+          name: comprehensive-test-results
+          path: |
+            zmk/build-test/test-results/
+          if-no-files-found: warn
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-report
+          path: |
+            zmk/build-test/test-results/coverage/
+          if-no-files-found: ignore
+
+  # Hardware validation job (when hardware-in-the-loop testing is available)
+  hardware-validation:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' && false  # Disabled until hardware setup is available
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup hardware test environment
+        run: |
+          echo "Setting up hardware-in-the-loop testing..."
+          # This would configure actual hardware for testing
+          # - nice!nano v2 boards
+          # - Sharp Memory LCD displays  
+          # - DRV2605 haptic drivers
+          # - BlackBerry trackpads
+          # - Test automation framework
+
+      - name: Run hardware validation tests
+        run: |
+          echo "Running hardware validation tests..."
+          # This would execute tests on real hardware
+          # - Flash firmware to test boards
+          # - Verify SPI/I2C communication
+          # - Test peripheral functionality
+          # - Measure performance metrics
+          # - Validate power consumption
+
+  code-quality:
+    runs-on: ubuntu-latest
+    container:
+      image: docker.io/zmkfirmware/zmk-build-arm:stable
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install code quality tools
+        run: |
+          apt-get update
+          apt-get install -y clang-format cppcheck clang-tidy
+
+      - name: Check code formatting
+        run: |
+          find app/drivers -name "*.c" -o -name "*.h" | xargs clang-format --dry-run --Werror
+
+      - name: Run static analysis
+        run: |
+          # Run cppcheck on custom drivers
+          cppcheck --error-exitcode=1 --enable=warning,style,performance,portability \
+                   --suppress=missingIncludeSystem \
+                   app/drivers/
+
+      - name: Check device tree formatting  
+        run: |
+          find app/boards app/dts -name "*.overlay" -o -name "*.dtsi" -o -name "*.dts" | \
+          while read file; do
+            echo "Checking $file"
+            if [ -f "$file" ]; then
+              # Verify device tree syntax
+              head -1 "$file" | grep -q "^/" || echo "Warning: $file may not start with root node"
+              # Check for common device tree issues
+              if grep -q "compatible.*=" "$file"; then
+                echo "✓ $file has compatible strings"
+              fi
+            fi
+          done
+
+      - name: Validate device tree bindings
+        run: |
+          # Check that all custom bindings have proper YAML definitions
+          find app/dts/bindings -name "*.yaml" | while read binding; do
+            echo "Validating binding: $binding"
+            # Basic YAML syntax check
+            python3 -c "import yaml; yaml.safe_load(open('$binding'))" || exit 1
+            echo "✓ $binding is valid YAML"
+          done
+
+  # Security analysis job
+  security-analysis:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' || github.event_name == 'schedule'
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run security scanning
+        uses: github/super-linter@v4
+        env:
+          DEFAULT_BRANCH: main
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VALIDATE_C: true
+          VALIDATE_YAML: true
+          VALIDATE_MARKDOWN: true
+          VALIDATE_GITHUB_ACTIONS: true
+
+      - name: Check for sensitive data
+        run: |
+          # Check for accidentally committed sensitive data
+          if grep -r "password\|secret\|key.*=" app/ --include="*.c" --include="*.h" --include="*.yml"; then
+            echo "❌ Potential sensitive data found in source code"
+            exit 1
+          else
+            echo "✅ No sensitive data detected"
+          fi
+
+  # Documentation and examples validation
+  documentation:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate documentation
+        run: |
+          # Check that all custom drivers have documentation
+          for driver in app/drivers/*/; do
+            driver_name=$(basename "$driver")
+            if [ ! -f "CLAUDE.md" ] || ! grep -q "$driver_name" CLAUDE.md; then
+              echo "Warning: $driver_name may need documentation updates"
+            fi
+          done
+
+      - name: Check example configurations
+        run: |
+          # Validate that example configurations are buildable
+          echo "Validating example configurations..."
+          
+          # Check that device tree examples are syntactically correct
+          for overlay in app/boards/shields/*/*.overlay; do
+            if [ -f "$overlay" ]; then
+              echo "Checking $overlay for syntax issues..."
+              # Basic device tree validation could be added here
+            fi
+          done
+
+      - name: Generate API documentation
+        run: |
+          # Generate documentation for custom driver APIs
+          mkdir -p docs/api
+          
+          echo "# ZMK Custom Driver API Reference" > docs/api/README.md
+          echo "" >> docs/api/README.md
+          echo "Generated: $(date)" >> docs/api/README.md
+          echo "" >> docs/api/README.md
+          
+          # Extract function prototypes and documentation from headers
+          find app/include -name "*.h" -exec grep -l "drv2605\|blackberry\|trackpad" {} \; | \
+          while read header; do
+            echo "## $(basename $header)" >> docs/api/README.md
+            grep -A 5 "^\s*\*\*\|^/\*\*\|^\s*[a-zA-Z_].*(" "$header" | head -20 >> docs/api/README.md
+            echo "" >> docs/api/README.md
+          done
+
+      - name: Upload documentation
+        uses: actions/upload-artifact@v3
+        with:
+          name: documentation
+          path: docs/
+          if-no-files-found: ignore

@@ -711,6 +711,9 @@ source "$(BOARD_DIR)/Kconfig.defconfig"
 osource "$(ZMK_CONFIG)/boards/shields/*/Kconfig.defconfig"
 osource "$(ZMK_CONFIG)/boards/shields/*/Kconfig.shield"
 
+# Load custom drivers
+rsource "drivers/Kconfig"
+
 # This loads ZMK's sensible defaults
 rsource "Kconfig.defaults"
 

@@ -1,0 +1,10 @@
+pressed: usage_page 0x07 keycode 0x04 implicit_mods 0x00 explicit_mods 0x00
+released: usage_page 0x07 keycode 0x04 implicit_mods 0x00 explicit_mods 0x00
+TRACKPAD_IRQ: 0
+TRACKPAD_MOTION: 5,0
+INPUT_SCALED: 10,0
+MOUSE_MOVE: 10,0
+LAYER_ACTIVATE: 1
+pressed: usage_page 0x02 keycode 0x01 implicit_mods 0x00 explicit_mods 0x00
+released: usage_page 0x02 keycode 0x01 implicit_mods 0x00 explicit_mods 0x00
+LAYER_DEACTIVATE: 1

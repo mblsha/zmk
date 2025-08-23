@@ -1,0 +1,39 @@
+#include "../behavior_keymap.dtsi"
+
+&kscan {
+    events = <
+        /* Test scroll gestures */
+        /* Hold modifier key and move trackpad for scroll */
+        ZMK_MOCK_PRESS(0,1,10)    /* Press scroll modifier (B key) */
+        
+        /* Simulate vertical scroll (trackpad motion while modifier held) */
+        /* In real implementation, this would be detected by input processor */
+        
+        ZMK_MOCK_RELEASE(0,1,100) /* Release modifier after scroll */
+        
+        /* Test horizontal scroll */
+        ZMK_MOCK_PRESS(0,0,10)    /* Press horizontal scroll modifier (A key) */
+        
+        /* Simulate horizontal trackpad motion */
+        
+        ZMK_MOCK_RELEASE(0,0,100) /* Release modifier */
+    >;
+};
+
+/* Configure scroll gesture detection */
+&bb_trackpad {
+    scroll-threshold = <10>;       /* Minimum movement for scroll */
+    scroll-divisor = <5>;          /* Movement to scroll ratio */
+    scroll-acceleration = <2>;     /* Scroll acceleration factor */
+    
+    test-scroll-sequences = <
+        /* Vertical scroll up: large Y movement */
+        0 -20 0 -15 0 -10
+        /* Vertical scroll down: large Y movement */  
+        0 20 0 15 0 10
+        /* Horizontal scroll left: large X movement */
+        -20 0 -15 0 -10 0
+        /* Horizontal scroll right: large X movement */
+        20 0 15 0 10 0
+    >;
+};

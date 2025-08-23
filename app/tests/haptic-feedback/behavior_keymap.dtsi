@@ -1,0 +1,71 @@
+#include <dt-bindings/zmk/keys.h>
+#include <behaviors.dtsi>
+#include <dt-bindings/zmk/kscan_mock.h>
+
+/ {
+    chosen {
+        zmk,haptic = &haptic_drv;
+    };
+
+    /* Mock I2C bus for DRV2605 */
+    test_i2c: test_i2c {
+        compatible = "zephyr,i2c-emul-controller";
+        clock-frequency = <100000>;
+        #address-cells = <1>;
+        #size-cells = <0>;
+
+        haptic_drv: haptic@5a {
+            compatible = "ti,drv2605";
+            reg = <0x5a>;
+            enable-gpios = <&gpio0 6 GPIO_ACTIVE_HIGH>;
+            library = <6>;  /* LRA library */
+            actuator-type = <1>;  /* LRA */
+            rated-voltage = <2000>;  /* 2V */
+            overdrive-voltage = <2500>;  /* 2.5V */
+            auto-calibration;
+        };
+    };
+
+    gpio0: gpio@300 {
+        compatible = "zephyr,gpio-emul";
+        reg = <0x300 4>;
+        gpio-controller;
+        #gpio-cells = <2>;
+        ngpios = <32>;
+    };
+
+    /* Custom haptic behaviors */
+    behaviors {
+        hp_click: haptic_click {
+            compatible = "zmk,behavior-haptic";
+            label = "HAPTIC_CLICK";
+            #binding-cells = <0>;
+            waveform = <12>;  /* Strong click */
+        };
+
+        hp_tick: haptic_tick {
+            compatible = "zmk,behavior-haptic";
+            label = "HAPTIC_TICK";
+            #binding-cells = <0>;
+            waveform = <2>;   /* Tick */
+        };
+
+        hp_seq: haptic_sequence {
+            compatible = "zmk,behavior-haptic-sequence";
+            label = "HAPTIC_SEQUENCE";
+            #binding-cells = <0>;
+            sequence = <1 2 3>;  /* Click, tick, slow rise */
+        };
+    };
+
+    keymap {
+        compatible = "zmk,keymap";
+
+        default_layer {
+            bindings = <
+                &hp_click &hp_tick
+                &hp_seq   &kp A
+            >;
+        };
+    };
+};

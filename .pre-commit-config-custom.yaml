@@ -1,0 +1,36 @@
+# Additional pre-commit configuration for custom drivers
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      - id: trailing-whitespace
+        exclude: ^(.*\.patch|.*\.diff)$
+      - id: end-of-file-fixer
+        exclude: ^(.*\.patch|.*\.diff)$  
+      - id: check-yaml
+      - id: check-added-large-files
+      - id: check-merge-conflict
+      
+  - repo: https://github.com/pocc/pre-commit-hooks
+    rev: v1.3.5
+    hooks:
+      - id: clang-format
+        args: [-i, --style=file]
+        files: \.(c|h|cpp|hpp|cc|cxx)$
+        exclude: ^(modules/|zephyr/|bootloader/).*
+        
+  - repo: local
+    hooks:
+      - id: check-devicetree-syntax
+        name: Check device tree syntax
+        entry: scripts/check-devicetree-syntax.sh
+        language: script
+        files: \.(dts|dtsi|overlay)$
+        pass_filenames: true
+        
+      - id: check-driver-includes  
+        name: Check driver includes
+        entry: scripts/check-driver-includes.sh
+        language: script
+        files: ^app/drivers/.*\.(c|h)$
+        pass_filenames: true

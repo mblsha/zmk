@@ -1,0 +1,52 @@
+/*
+ * Copyright (c) 2023 My Name
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/ {
+    /* Create test I2C and SPI buses with emulated devices */
+    test_i2c: i2c@100 {
+        compatible = "zephyr,i2c-emul-controller";
+        clock-frequency = <100000>;
+        #address-cells = <1>;
+        #size-cells = <0>;
+        reg = <0x100 4>;
+
+        drv2605_emul: drv2605@5a {
+            compatible = "ti,drv2605";
+            reg = <0x5a>;
+            enable-gpios = <&gpio0 1 0>;
+            library = <6>;
+            actuator-type = <1>;
+            rated-voltage = <2000>;
+            overdrive-voltage = <2500>;
+            auto-calibration;
+        };
+    };
+
+    test_spi: spi@200 {
+        compatible = "zephyr,spi-emul-controller";
+        clock-frequency = <1000000>;
+        #address-cells = <1>;
+        #size-cells = <0>;
+        reg = <0x200 4>;
+
+        bb_trackpad_emul: bb_trackpad@0 {
+            compatible = "blackberry,trackpad";
+            reg = <0>;
+            spi-max-frequency = <1000000>;
+            irq-gpios = <&gpio0 2 0>;
+            scale-x = <2>;
+            scale-y = <2>;
+        };
+    };
+
+    gpio0: gpio@300 {
+        compatible = "zephyr,gpio-emul";
+        reg = <0x300 4>;
+        gpio-controller;
+        #gpio-cells = <2>;
+        ngpios = <32>;
+    };
+};

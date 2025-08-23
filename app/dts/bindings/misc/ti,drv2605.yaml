@@ -1,0 +1,58 @@
+# Copyright (c) 2023 My Name
+# SPDX-License-Identifier: Apache-2.0
+
+description: TI DRV2605 Haptic Motor Driver
+
+compatible: "ti,drv2605"
+
+include: [i2c-device.yaml]
+
+properties:
+  enable-gpios:
+    type: phandle-array
+    description: |
+      GPIO used to enable the DRV2605 device.
+      
+  library:
+    type: int
+    default: 1
+    enum:
+      - 1  # Empty
+      - 2  # TS2200 Library A (2 to 3V LRA)
+      - 3  # TS2200 Library B (3 to 5V LRA)
+      - 4  # TS2200 Library C (3 to 5V LRA, higher strength)
+      - 5  # TS2200 Library D (3 to 5V LRA, lower strength)
+      - 6  # LRA Library
+      - 7  # TS2200 Library F (4 to 5V LRA)
+    description: |
+      Waveform library to use. Different libraries are optimized
+      for different actuator types and voltage ranges.
+
+  actuator-type:
+    type: int
+    default: 1
+    enum:
+      - 0  # ERM (Eccentric Rotating Mass)
+      - 1  # LRA (Linear Resonant Actuator)
+    description: |
+      Type of haptic actuator connected to the DRV2605.
+
+  rated-voltage:
+    type: int
+    default: 2000
+    description: |
+      Rated voltage of the actuator in millivolts.
+      This affects the strength of vibration effects.
+
+  overdrive-voltage:
+    type: int  
+    default: 2000
+    description: |
+      Overdrive voltage of the actuator in millivolts.
+      Should typically be higher than rated voltage.
+
+  auto-calibration:
+    type: boolean
+    description: |
+      Enable automatic calibration of the haptic actuator
+      during initialization.

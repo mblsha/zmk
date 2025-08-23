@@ -1,0 +1,36 @@
+#include "../behavior_keymap.dtsi"
+
+&kscan {
+    events = <
+        /* Test haptic feedback on layer changes */
+        
+        /* Activate layer 1 with momentary layer key */
+        ZMK_MOCK_PRESS(1,0,10)    /* Press layer sequence key */
+        ZMK_MOCK_RELEASE(1,0,50)  /* Release after haptic sequence */
+        
+        /* Test multiple rapid layer changes */
+        ZMK_MOCK_PRESS(0,0,10)    /* Press haptic click */
+        ZMK_MOCK_RELEASE(0,0,10)
+        ZMK_MOCK_PRESS(0,1,10)    /* Press haptic tick */
+        ZMK_MOCK_RELEASE(0,1,10)
+        ZMK_MOCK_PRESS(0,0,10)    /* Press haptic click again */
+        ZMK_MOCK_RELEASE(0,0,10)
+        
+        /* Test normal key without haptic feedback */
+        ZMK_MOCK_PRESS(1,1,10)    /* Press A key */
+        ZMK_MOCK_RELEASE(1,1,10)
+    >;
+};
+
+/* Configure layer-based haptic feedback */
+&haptic_drv {
+    layer-feedback {
+        /* Layer activation haptics */
+        layer-activate-waveforms = <47 48 49>; /* Different waveforms for layers 1,2,3 */
+        layer-deactivate-waveform = <46>;      /* Single waveform for deactivation */
+        
+        /* Key press haptic patterns */
+        key-press-intensity = <50>;            /* 50% intensity for key presses */
+        key-release-intensity = <20>;          /* 20% intensity for key releases */
+    };
+};

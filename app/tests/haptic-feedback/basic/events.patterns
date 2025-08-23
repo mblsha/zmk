@@ -1,0 +1,4 @@
+s/.*haptic_play_waveform: waveform=\([0-9]*\)/HAPTIC_WAVEFORM: \1/p
+s/.*haptic_play_sequence: sequence=\(.*\)/HAPTIC_SEQUENCE: \1/p
+s/.*haptic_device_ready: ready=\([0-9]*\)/HAPTIC_READY: \1/p
+s/.*drv2605_calibration_complete: result=\([0-9]*\)/HAPTIC_CALIBRATED: \1/p
