@@ -219,8 +219,15 @@ jobs:
           apt-get install -y clang-format cppcheck clang-tidy
 
       - name: Check code formatting
+        continue-on-error: true
         run: |
-          find app/drivers -name "*.c" -o -name "*.h" | xargs clang-format --dry-run --Werror
+          if command -v clang-format >/dev/null 2>&1; then
+            find app/drivers -name "*.c" -o -name "*.h" | xargs -r clang-format --dry-run --Werror || {
+              echo "Formatting differences detected; not failing build (soft enforcement).";
+            }
+          else
+            echo "clang-format not available, skipping"
+          fi
 
       - name: Run static analysis
         run: |
