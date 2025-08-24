@@ -17,17 +17,17 @@
 LOG_MODULE_REGISTER(blackberry_trackpad, CONFIG_INPUT_LOG_LEVEL);
 
 /* BlackBerry trackpad SPI commands */
-#define BB_TP_CMD_READ_MOTION    0x02
-#define BB_TP_CMD_READ_DELTA_X   0x03
-#define BB_TP_CMD_READ_DELTA_Y   0x04
-#define BB_TP_CMD_CONFIG_1       0x0A
-#define BB_TP_CMD_CONFIG_2       0x0B
-#define BB_TP_CMD_POWER_DOWN     0x0F
-#define BB_TP_CMD_POWER_UP       0x10
+#define BB_TP_CMD_READ_MOTION 0x02
+#define BB_TP_CMD_READ_DELTA_X 0x03
+#define BB_TP_CMD_READ_DELTA_Y 0x04
+#define BB_TP_CMD_CONFIG_1 0x0A
+#define BB_TP_CMD_CONFIG_2 0x0B
+#define BB_TP_CMD_POWER_DOWN 0x0F
+#define BB_TP_CMD_POWER_UP 0x10
 
 /* Configuration values */
-#define BB_TP_CONFIG_1_VAL       0x8D  /* Default configuration */
-#define BB_TP_CONFIG_2_VAL       0x40  /* Enable motion detection */
+#define BB_TP_CONFIG_1_VAL 0x8D /* Default configuration */
+#define BB_TP_CONFIG_2_VAL 0x40 /* Enable motion detection */
 
 struct blackberry_trackpad_config {
     struct spi_dt_spec spi;
@@ -48,10 +48,9 @@ struct blackberry_trackpad_data {
     int16_t last_y;
 };
 
-static int bb_tp_spi_write_read(const struct device *dev, uint8_t cmd, uint8_t *data)
-{
+static int bb_tp_spi_write_read(const struct device *dev, uint8_t cmd, uint8_t *data) {
     const struct blackberry_trackpad_config *config = dev->config;
-    
+
     const struct spi_buf tx_buf = {
         .buf = &cmd,
         .len = 1,
@@ -60,7 +59,7 @@ static int bb_tp_spi_write_read(const struct device *dev, uint8_t cmd, uint8_t *
         .buffers = &tx_buf,
         .count = 1,
     };
-    
+
     struct spi_buf rx_buf = {
         .buf = data,
         .len = 1,
@@ -73,12 +72,11 @@ static int bb_tp_spi_write_read(const struct device *dev, uint8_t cmd, uint8_t *
     return spi_transceive_dt(&config->spi, &tx, &rx);
 }
 
-static void bb_tp_motion_work_handler(struct k_work *work)
-{
-    struct blackberry_trackpad_data *data = 
+static void bb_tp_motion_work_handler(struct k_work *work) {
+    struct blackberry_trackpad_data *data =
         CONTAINER_OF(work, struct blackberry_trackpad_data, motion_work);
     const struct blackberry_trackpad_config *config = data->dev->config;
-    
+
     uint8_t motion_status;
     int16_t delta_x = 0, delta_y = 0;
     uint8_t raw_delta;
@@ -93,7 +91,7 @@ static void bb_tp_motion_work_handler(struct k_work *work)
 
     /* Check if motion detected */
     if (!(motion_status & 0x80)) {
-        return;  /* No motion */
+        return; /* No motion */
     }
 
     /* Read X delta */
@@ -102,7 +100,7 @@ static void bb_tp_motion_work_handler(struct k_work *work)
         LOG_ERR("Failed to read X delta: %d", ret);
         return;
     }
-    delta_x = (int8_t)raw_delta;  /* Convert to signed */
+    delta_x = (int8_t)raw_delta; /* Convert to signed */
 
     /* Read Y delta */
     ret = bb_tp_spi_write_read(data->dev, BB_TP_CMD_READ_DELTA_Y, &raw_delta);
@@ -110,7 +108,7 @@ static void bb_tp_motion_work_handler(struct k_work *work)
         LOG_ERR("Failed to read Y delta: %d", ret);
         return;
     }
-    delta_y = (int8_t)raw_delta;  /* Convert to signed */
+    delta_y = (int8_t)raw_delta; /* Convert to signed */
 
     /* Apply scaling */
     delta_x *= config->scale_x;
@@ -134,24 +132,22 @@ static void bb_tp_motion_work_handler(struct k_work *work)
     /* Report movement if significant */
     if (delta_x != 0 || delta_y != 0) {
         LOG_DBG("Motion: X=%d, Y=%d", delta_x, delta_y);
-        
+
         input_report_rel(data->dev, INPUT_REL_X, delta_x, false, K_FOREVER);
         input_report_rel(data->dev, INPUT_REL_Y, delta_y, true, K_FOREVER);
     }
 }
 
-static void bb_tp_irq_handler(const struct device *gpio_dev, 
-                             struct gpio_callback *cb, uint32_t pins)
-{
-    struct blackberry_trackpad_data *data = 
+static void bb_tp_irq_handler(const struct device *gpio_dev, struct gpio_callback *cb,
+                              uint32_t pins) {
+    struct blackberry_trackpad_data *data =
         CONTAINER_OF(cb, struct blackberry_trackpad_data, irq_cb);
-    
+
     /* Schedule work to read motion data */
     k_work_submit(&data->motion_work);
 }
 
-static int blackberry_trackpad_init(const struct device *dev)
-{
+static int blackberry_trackpad_init(const struct device *dev) {
     const struct blackberry_trackpad_config *config = dev->config;
     struct blackberry_trackpad_data *data = dev->data;
     uint8_t dummy;
@@ -180,7 +176,7 @@ static int blackberry_trackpad_init(const struct device *dev)
 
         /* Take device out of shutdown */
         gpio_pin_set_dt(&config->shutdown_gpio, 1);
-        k_msleep(1);  /* Wait for power up */
+        k_msleep(1); /* Wait for power up */
     }
 
     /* Initialize IRQ GPIO */
@@ -199,8 +195,7 @@ static int blackberry_trackpad_init(const struct device *dev)
     k_work_init(&data->motion_work, bb_tp_motion_work_handler);
 
     /* Configure GPIO interrupt */
-    gpio_init_callback(&data->irq_cb, bb_tp_irq_handler, 
-                       BIT(config->irq_gpio.pin));
+    gpio_init_callback(&data->irq_cb, bb_tp_irq_handler, BIT(config->irq_gpio.pin));
     ret = gpio_add_callback(config->irq_gpio.port, &data->irq_cb);
     if (ret < 0) {
         LOG_ERR("Failed to add GPIO callback: %d", ret);
@@ -214,7 +209,7 @@ static int blackberry_trackpad_init(const struct device *dev)
     }
 
     /* Initialize trackpad */
-    k_msleep(10);  /* Wait for trackpad to be ready */
+    k_msleep(10); /* Wait for trackpad to be ready */
 
     /* Configure trackpad */
     ret = bb_tp_spi_write_read(dev, BB_TP_CMD_CONFIG_1, &dummy);
@@ -223,7 +218,7 @@ static int blackberry_trackpad_init(const struct device *dev)
         return ret;
     }
 
-    ret = bb_tp_spi_write_read(dev, BB_TP_CMD_CONFIG_2, &dummy);  
+    ret = bb_tp_spi_write_read(dev, BB_TP_CMD_CONFIG_2, &dummy);
     if (ret < 0) {
         LOG_ERR("Failed to write config 2: %d", ret);
         return ret;
@@ -240,28 +235,22 @@ static int blackberry_trackpad_init(const struct device *dev)
     return 0;
 }
 
-#define BLACKBERRY_TRACKPAD_INIT(inst)                                         \
-    static const struct blackberry_trackpad_config                            \
-        blackberry_trackpad_config_##inst = {                                 \
-        .spi = SPI_DT_SPEC_INST_GET(inst, SPI_WORD_SET(8) | SPI_OP_MODE_MASTER, 0), \
-        .irq_gpio = GPIO_DT_SPEC_INST_GET(inst, irq_gpios),                   \
-        .shutdown_gpio = GPIO_DT_SPEC_INST_GET_OR(inst, shutdown_gpios, {0}), \
-        .swap_xy = DT_INST_PROP(inst, swap_xy),                               \
-        .invert_x = DT_INST_PROP(inst, invert_x),                             \
-        .invert_y = DT_INST_PROP(inst, invert_y),                             \
-        .scale_x = DT_INST_PROP_OR(inst, scale_x, 1),                         \
-        .scale_y = DT_INST_PROP_OR(inst, scale_y, 1),                         \
-    };                                                                         \
-                                                                               \
-    static struct blackberry_trackpad_data blackberry_trackpad_data_##inst;   \
-                                                                               \
-    DEVICE_DT_INST_DEFINE(inst,                                               \
-                          blackberry_trackpad_init,                           \
-                          NULL,                                               \
-                          &blackberry_trackpad_data_##inst,                   \
-                          &blackberry_trackpad_config_##inst,                 \
-                          POST_KERNEL,                                        \
-                          CONFIG_INPUT_INIT_PRIORITY,                         \
-                          NULL);
+#define BLACKBERRY_TRACKPAD_INIT(inst)                                                             \
+    static const struct blackberry_trackpad_config blackberry_trackpad_config_##inst = {           \
+        .spi = SPI_DT_SPEC_INST_GET(inst, SPI_WORD_SET(8) | SPI_OP_MODE_MASTER, 0),                \
+        .irq_gpio = GPIO_DT_SPEC_INST_GET(inst, irq_gpios),                                        \
+        .shutdown_gpio = GPIO_DT_SPEC_INST_GET_OR(inst, shutdown_gpios, {0}),                      \
+        .swap_xy = DT_INST_PROP(inst, swap_xy),                                                    \
+        .invert_x = DT_INST_PROP(inst, invert_x),                                                  \
+        .invert_y = DT_INST_PROP(inst, invert_y),                                                  \
+        .scale_x = DT_INST_PROP_OR(inst, scale_x, 1),                                              \
+        .scale_y = DT_INST_PROP_OR(inst, scale_y, 1),                                              \
+    };                                                                                             \
+                                                                                                   \
+    static struct blackberry_trackpad_data blackberry_trackpad_data_##inst;                        \
+                                                                                                   \
+    DEVICE_DT_INST_DEFINE(inst, blackberry_trackpad_init, NULL, &blackberry_trackpad_data_##inst,  \
+                          &blackberry_trackpad_config_##inst, POST_KERNEL,                         \
+                          CONFIG_INPUT_INIT_PRIORITY, NULL);
 
 DT_INST_FOREACH_STATUS_OKAY(BLACKBERRY_TRACKPAD_INIT)
