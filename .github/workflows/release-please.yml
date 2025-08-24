@@ -14,6 +14,7 @@ jobs:
   handle-commit:
     name: Handle new commit
     runs-on: ubuntu-latest
+    if: ${{ github.repository_owner == 'zmkfirmware' }}
     outputs:
       release_created: ${{ steps.release.outputs.release_created }}
       major: ${{ steps.release.outputs.major }}
