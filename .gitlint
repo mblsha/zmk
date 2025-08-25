@@ -1,13 +1,13 @@
 # .gitlint
 [general]
-ignore=B6  ; body-first-line-empty
+ignore=B6
+contrib=CT1
 
 [title-match-regex]
-# Allow scopes like (ci), (drivers), etc.
-regex=(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(\([^)]+\))?: .+
+regex=^(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(\([^)]+\))?!?: .+
 
 [title-max-length]
-line-length=72
+max-length=72
 
 [body-max-line-length]
 line-length=100

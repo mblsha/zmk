@@ -27,6 +27,7 @@ repos:
     rev: v0.19.1
     hooks:
       - id: gitlint
+        args: [--show-diff-on-failure]
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.4.0
     hooks:

@@ -56,12 +56,21 @@ jobs:
           cd zmk
           west build -s app -b nice_nano_v2 -- -DSHIELD=my_keyboard
 
-      - name: Build native_posix tests
+      - name: Build native_posix tests (emit DTS)
         if: steps.check_native.outputs.native_available == 'true'
         run: |
           set -euxo pipefail
           cd zmk
           west build -s app/tests/drivers_test -b native_posix
+          echo "===== zephyr.dts (tail) ====="
+          tail -n 200 build/zephyr/zephyr.dts || true
+          echo "===== emulator nodes ====="
+          grep -n "drv2605@5a\|bb_trackpad@0\|i2c@0\|spi@0" build/zephyr/zephyr.dts || true
+          echo "===== checking emulator nodes are okay ====="
+          grep -q 'compatible = "ti,drv2605"' build/zephyr/zephyr.dts || \
+            (echo "::error ::DRV2605 node missing in DTS"; exit 1)
+          grep -q 'compatible = "blackberry,trackpad"' build/zephyr/zephyr.dts || \
+            (echo "::error ::BlackBerry trackpad node missing in DTS"; exit 1)
 
       - name: Run unit tests with output on failure
         if: steps.check_native.outputs.native_available == 'true'
@@ -250,14 +259,17 @@ jobs:
             ${{ runner.os }}-west-
 
       - name: Initialize west workspace
+        working-directory: zmk
         run: |
           west init -l app/
           west update
 
       - name: Generate compile database
+        working-directory: zmk
         run: |
-          west build -s app -b nice_nano_v2 -- -DSHIELD=my_keyboard -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
-          cp build/compile_commands.json .
+          west build -s app -b nice_nano_v2 -- \
+            -DSHIELD=my_keyboard \
+            -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
 
       - name: Install code quality tools
         run: |
@@ -265,28 +277,32 @@ jobs:
           apt-get install -y --no-install-recommends clang-format cppcheck clang-tidy
 
       - name: Check code formatting
+        working-directory: zmk
         continue-on-error: true
         run: |
           if command -v clang-format >/dev/null 2>&1; then
-            find app/drivers -name "*.c" -o -name "*.h" | xargs -r clang-format --dry-run --Werror || {
-              echo "Formatting differences detected; not failing build (soft enforcement).";
-            }
+            find app/drivers -name "*.c" -o -name "*.h" | \
+              xargs -r clang-format --dry-run --Werror || {
+                echo "Formatting differences detected; not failing build (soft enforcement).";
+              }
           else
             echo "clang-format not available, skipping"
           fi
 
       - name: Run static analysis
+        working-directory: zmk
         run: |
           # Run cppcheck with compile database and tuned suppressions
-          cppcheck --project=compile_commands.json \
-                   --error-exitcode=1 \
-                   --enable=warning,style,performance,portability \
-                   --inline-suppr \
-                   --suppress=missingIncludeSystem \
-                   --suppress=unusedFunction \
-                   --suppress=unmatchedSuppression \
-                   --suppressions-list=cppcheck-suppressions.txt \
-                   app/drivers/
+          cppcheck \
+            --project="${GITHUB_WORKSPACE}/zmk/build/compile_commands.json" \
+            --suppressions-list="${GITHUB_WORKSPACE}/cppcheck-suppressions.txt" \
+            --error-exitcode=1 \
+            --enable=warning,style,performance,portability \
+            --inline-suppr \
+            --suppress=missingIncludeSystem \
+            --suppress=unusedFunction \
+            --suppress=unmatchedSuppression \
+            app/drivers/
 
       - name: Check device tree formatting  
         run: |
