@@ -14,6 +14,10 @@
 #include <zephyr/logging/log.h>
 #include <zephyr/sys/util.h>
 
+#ifndef CONFIG_INPUT_LOG_LEVEL
+#define CONFIG_INPUT_LOG_LEVEL 3
+#endif
+
 LOG_MODULE_REGISTER(blackberry_trackpad, CONFIG_INPUT_LOG_LEVEL);
 
 /* BlackBerry trackpad SPI commands */

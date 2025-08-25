@@ -64,9 +64,9 @@ jobs:
 
       - name: Upload build artifacts
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: build-artifacts
+          name: build-artifacts-${{ github.sha }}
           path: |
             build/zephyr/*.uf2
             build/zephyr/*.hex
@@ -75,9 +75,9 @@ jobs:
 
       - name: Upload build log
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: build-log
+          name: build-log-${{ github.sha }}
           path: build.log
           if-no-files-found: ignore
 

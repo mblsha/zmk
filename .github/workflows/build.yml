@@ -453,3 +453,29 @@ jobs:
             const ymlChanges = changedFiles.includes('.github/workflows/build.yml');
             return boardChanges.length < appChanges.length || ymlChanges ? 'true' : 'false';
           result-encoding: string
+
+  # Aggregator job for branch protection
+  build-aggregator:
+    name: Build (aggregated)
+    runs-on: ubuntu-latest
+    if: always()
+    needs:
+      - build
+      - compile-matrix
+      - core-coverage
+      - board-changes
+      - nightly
+      - get-changed-files
+    steps:
+      - name: Evaluate build outcomes
+        run: |
+          set -euo pipefail
+          # Fail only if any "needs" actually failed; treat "skipped" as OK.
+          results='${{ toJson(needs) }}'
+          echo "$results" | jq -e '
+            to_entries
+            | map(.value.result)
+            | any(. == "failure" or . == "cancelled")
+            | not
+          ' >/dev/null || { echo "At least one required job failed/cancelled"; exit 1; }
+          echo "All required jobs either succeeded or were skipped as intended."
