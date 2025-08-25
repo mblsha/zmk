@@ -295,7 +295,7 @@ jobs:
       - name: Install code quality tools
         run: |
           apt-get update
-          apt-get install -y --no-install-recommends clang-format cppcheck clang-tidy
+          apt-get install -y --no-install-recommends clang-format cppcheck clang-tidy jq
 
       - name: Check code formatting
         continue-on-error: true
