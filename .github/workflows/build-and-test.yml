@@ -318,7 +318,7 @@ jobs:
           # Create filtered compile database for drivers and tests only
           jq '[.[] | select(.file | test("(^|/)app/drivers/|(^|/)app/tests/drivers_test/"))]' \
             build-quality/compile_commands.json > drivers_compile_commands.json
-          
+
           # Run cppcheck with filtered compile database and parallel processing
           cppcheck \
             --project="${GITHUB_WORKSPACE}/drivers_compile_commands.json" \
