@@ -265,11 +265,13 @@ rm -rf .west modules zephyr
 ## Contributing
 
 1. **Follow coding standards:**
+
    - Use clang-format for C code
    - Follow Zephyr device tree conventions
    - Include SPDX license headers
 
 2. **Write tests:**
+
    - Add unit tests for new features
    - Test error conditions
    - Mock hardware interactions for CI
@@ -307,6 +309,7 @@ To prepare code for upstream contribution:
    ```
 
 2. **Create separate PRs for:**
+
    - Device tree bindings
    - Driver implementation
    - Tests and documentation
