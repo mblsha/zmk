@@ -123,20 +123,20 @@ jobs:
         run: |
           echo "=== Validating YAML files ==="
           set -euo pipefail
-          python3 - <<'PY'
-import sys, yaml, pathlib
-rc = 0
-print("Checking YAML files in project...")
-for p in pathlib.Path('.').rglob('*'):
-    if p.suffix.lower() not in ('.yml', '.yaml'): continue
-    try:
-        yaml.safe_load(p.read_text(encoding='utf-8'))
-        print(f"  ✅ {p}")
-    except Exception as e:
-        print(f"  ❌ {p}: {e}")
-        rc = 1
-sys.exit(rc)
-PY
+          python3 - <<'EOF'
+          import sys, yaml, pathlib
+          rc = 0
+          print("Checking YAML files in project...")
+          for p in pathlib.Path('.').rglob('*'):
+              if p.suffix.lower() not in ('.yml', '.yaml'): continue
+              try:
+                  yaml.safe_load(p.read_text(encoding='utf-8'))
+                  print(f"  ✅ {p}")
+              except Exception as e:
+                  print(f"  ❌ {p}: {e}")
+                  rc = 1
+          sys.exit(rc)
+          EOF
 
       - name: Check for common issues
         run: |
