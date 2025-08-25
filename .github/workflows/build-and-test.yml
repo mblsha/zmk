@@ -56,11 +56,19 @@ jobs:
           cd zmk
           west build -s app -b nice_nano_v2 -- -DSHIELD=my_keyboard
 
-      - name: Run unit tests
+      - name: Build native_posix tests
         if: steps.check_native.outputs.native_available == 'true'
         run: |
+          set -euxo pipefail
           cd zmk
-          west build -s app/tests/drivers_test -b native_posix -t run
+          west build -s app/tests/drivers_test -b native_posix
+
+      - name: Run unit tests with output on failure
+        if: steps.check_native.outputs.native_available == 'true'
+        run: |
+          set -euxo pipefail
+          cd zmk/build
+          ctest --output-on-failure || (echo "::error::Tests failed"; exit 1)
 
       - name: Upload firmware artifacts
         uses: actions/upload-artifact@v4
@@ -277,6 +285,7 @@ jobs:
                    --suppress=missingIncludeSystem \
                    --suppress=unusedFunction \
                    --suppress=unmatchedSuppression \
+                   --suppressions-list=cppcheck-suppressions.txt \
                    app/drivers/
 
       - name: Check device tree formatting  

@@ -117,40 +117,26 @@ jobs:
             echo "⚠️ Driver tests missing"
           fi
 
-      - name: Validate YAML files
+      - name: Validate YAML files (safe)
         continue-on-error: true
+        shell: bash
         run: |
           echo "=== Validating YAML files ==="
-          
-          # Check if Python is available
-          if command -v python3 &> /dev/null; then
-            # Find and validate YAML files
-            find app -name "*.yaml" -o -name "*.yml" | while read file; do
-              echo "Checking: $file"
-              python3 -c "
-import sys
-try:
-    # Try with yaml if available
-    import yaml
-    with open('$file', 'r') as f:
-        yaml.safe_load(f)
-    print('  ✅ Valid YAML')
-except ImportError:
-    # Fall back to basic syntax check
-    with open('$file', 'r') as f:
-        content = f.read()
-        if 'compatible:' in content:
-            print('  ✅ Looks like valid binding')
-        else:
-            print('  ⚠️ Could not fully validate')
-except Exception as e:
-    print(f'  ❌ Invalid: {e}')
-    sys.exit(1)
-              " || echo "  ⚠️ Validation failed for $file"
-            done
-          else
-            echo "Python not available, skipping YAML validation"
-          fi
+          set -euo pipefail
+          python3 - <<'PY'
+import sys, yaml, pathlib
+rc = 0
+print("Checking YAML files in project...")
+for p in pathlib.Path('.').rglob('*'):
+    if p.suffix.lower() not in ('.yml', '.yaml'): continue
+    try:
+        yaml.safe_load(p.read_text(encoding='utf-8'))
+        print(f"  ✅ {p}")
+    except Exception as e:
+        print(f"  ❌ {p}: {e}")
+        rc = 1
+sys.exit(rc)
+PY
 
       - name: Check for common issues
         run: |

@@ -6,12 +6,13 @@
 
 / {
     /* Create test I2C and SPI buses with emulated devices */
-    test_i2c: i2c@100 {
+    i2c_emul0: i2c_emul@100 {
         compatible = "zephyr,i2c-emul-controller";
         clock-frequency = <100000>;
         #address-cells = <1>;
         #size-cells = <0>;
         reg = <0x100 4>;
+        status = "okay";
 
         drv2605_emul: drv2605@5a {
             compatible = "ti,drv2605";
@@ -22,15 +23,17 @@
             rated-voltage = <2000>;
             overdrive-voltage = <2500>;
             auto-calibration;
+            status = "okay";
         };
     };
 
-    test_spi: spi@200 {
+    spi_emul0: spi_emul@200 {
         compatible = "zephyr,spi-emul-controller";
         clock-frequency = <1000000>;
         #address-cells = <1>;
         #size-cells = <0>;
         reg = <0x200 4>;
+        status = "okay";
 
         bb_trackpad_emul: bb_trackpad@0 {
             compatible = "blackberry,trackpad";
@@ -39,6 +42,7 @@
             irq-gpios = <&gpio0 2 0>;
             scale-x = <2>;
             scale-y = <2>;
+            status = "okay";
         };
     };
 
@@ -48,5 +52,12 @@
         gpio-controller;
         #gpio-cells = <2>;
         ngpios = <32>;
+        status = "okay";
+    };
+
+    aliases {
+        test-i2c = &i2c_emul0;
+        test-spi = &spi_emul0;
+        test-gpio = &gpio0;
     };
 };

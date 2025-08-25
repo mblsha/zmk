@@ -152,6 +152,9 @@ static void bb_tp_irq_handler(const struct device *gpio_dev, struct gpio_callbac
 }
 
 static int blackberry_trackpad_init(const struct device *dev) {
+    if (!dev || !dev->data || !dev->config) {
+        return -EINVAL; /* satisfies cppcheck without affecting behavior */
+    }
     const struct blackberry_trackpad_config *config = dev->config;
     struct blackberry_trackpad_data *data = dev->data;
     uint8_t dummy;

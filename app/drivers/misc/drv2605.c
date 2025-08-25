@@ -269,6 +269,9 @@ static int drv2605_auto_calibrate(const struct device *dev) {
 }
 
 static int drv2605_init(const struct device *dev) {
+    if (!dev || !dev->data || !dev->config) {
+        return -EINVAL; /* satisfies cppcheck without affecting behavior */
+    }
     const struct drv2605_config *config = dev->config;
     struct drv2605_data *data = dev->data;
     uint8_t chip_id;

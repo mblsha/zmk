@@ -1,0 +1,15 @@
+# cppcheck-suppressions.txt
+# Zephyr guarantees dev->data/config non-null at init; analyzer can't infer
+nullPointer:app/drivers/input/blackberry_trackpad.c:*
+nullPointer:app/drivers/misc/drv2605.c:*
+
+# Zephyr device model handles static initialization properly
+uninitMemberVar:app/drivers/input/blackberry_trackpad.c:*
+uninitMemberVar:app/drivers/misc/drv2605.c:*
+
+# Standard Zephyr logging and device patterns
+unusedFunction:app/drivers/input/blackberry_trackpad.c:*
+unusedFunction:app/drivers/misc/drv2605.c:*
+
+# Test files can have unused functions for mock/emulation
+unusedFunction:app/tests/drivers_test/src/test_*

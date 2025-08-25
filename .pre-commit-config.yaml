@@ -11,7 +11,8 @@ repos:
       - id: clang-format
         types_or: [c++, c]
         args:
-          - -i
+          - --dry-run
+          - --Werror
   - repo: https://github.com/rbubley/mirrors-prettier
     rev: 787fb9f542b140ba0b2aced38e6a3e68021647a3
     hooks:
