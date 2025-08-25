@@ -23,7 +23,7 @@ jobs:
           path: zmk
 
       - name: Cache west modules  
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             modules/
@@ -31,7 +31,7 @@ jobs:
             zephyr/
             bootloader/
             .west/
-          key: ${{ runner.os }}-west-${{ hashFiles('zmk/app/west.yml') }}
+          key: ${{ runner.os }}-west-${{ hashFiles('app/west.yml') }}
           restore-keys: |
             ${{ runner.os }}-west-
 
@@ -100,7 +100,7 @@ jobs:
           path: zmk
 
       - name: Cache west modules
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             modules/
@@ -108,7 +108,7 @@ jobs:
             zephyr/
             bootloader/
             .west/
-          key: ${{ runner.os }}-west-${{ hashFiles('zmk/app/west.yml') }}
+          key: ${{ runner.os }}-west-${{ hashFiles('app/west.yml') }}
 
       - name: Initialize west workspace
         run: |
@@ -227,11 +227,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          path: zmk
 
       - name: Cache west modules
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             modules/
@@ -239,19 +237,17 @@ jobs:
             zephyr/
             bootloader/
             .west/
-          key: ${{ runner.os }}-west-${{ hashFiles('zmk/app/west.yml') }}
+          key: ${{ runner.os }}-west-${{ hashFiles('app/west.yml') }}
           restore-keys: |
             ${{ runner.os }}-west-
 
       - name: Initialize west workspace
         run: |
-          cd zmk
           west init -l app/
           west update
 
       - name: Generate compile database
         run: |
-          cd zmk
           west build -s app -b nice_nano_v2 -- -DSHIELD=my_keyboard -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
           cp build/compile_commands.json .
 
@@ -263,7 +259,6 @@ jobs:
       - name: Check code formatting
         continue-on-error: true
         run: |
-          cd zmk
           if command -v clang-format >/dev/null 2>&1; then
             find app/drivers -name "*.c" -o -name "*.h" | xargs -r clang-format --dry-run --Werror || {
               echo "Formatting differences detected; not failing build (soft enforcement).";
@@ -274,7 +269,6 @@ jobs:
 
       - name: Run static analysis
         run: |
-          cd zmk
           # Run cppcheck with compile database and tuned suppressions
           cppcheck --project=compile_commands.json \
                    --error-exitcode=1 \
@@ -287,7 +281,6 @@ jobs:
 
       - name: Check device tree formatting  
         run: |
-          cd zmk
           find app/boards app/dts -name "*.overlay" -o -name "*.dtsi" -o -name "*.dts" | \
           while read file; do
             echo "Checking $file"
@@ -308,7 +301,6 @@ jobs:
 
       - name: Validate device tree bindings
         run: |
-          cd zmk
           # Check that all custom bindings have proper YAML definitions
           find app/dts/bindings -name "*.yaml" | while read binding; do
             echo "Validating binding: $binding"
