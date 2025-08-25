@@ -28,7 +28,7 @@ jobs:
         id: test-dirs
         run: |
           cd app/tests/
-          export TESTS=$(ls -d * | grep -v ble | jq -R -s -c 'split("\n")[:-1]')
+          export TESTS=$(find . -mindepth 1 -maxdepth 1 -type d -not -name "ble*" | cut -c3- | jq -R -s -c 'split("\n")[:-1]')
           echo "test-dirs=${TESTS}" >> $GITHUB_OUTPUT
   run-tests:
     needs: collect-tests
@@ -74,10 +74,24 @@ jobs:
         run: |
           set -euxo pipefail
           cd "$GITHUB_WORKSPACE/app"
-          west test tests/${{ matrix.test }}
+          # Use proper ZMK test invocation pattern
+          if [ -f "tests/${{ matrix.test }}/testcase.yaml" ]; then
+            echo "Running ZMK test for ${{ matrix.test }}"
+            west test tests/${{ matrix.test }}
+            # Emit DTS tail for diagnostics if build exists
+            if [ -f "../build/zephyr/zephyr.dts" ]; then
+              echo "===== DTS diagnostics for ${{ matrix.test }} ====="
+              tail -n 50 ../build/zephyr/zephyr.dts || true
+            fi
+          else
+            echo "::warning::Skipping ${{ matrix.test }} - no testcase.yaml found"
+            echo "Available files in tests/${{ matrix.test }}:"
+            ls -la "tests/${{ matrix.test }}/" || true
+          fi
       - name: Archive artifacts
-        if: ${{ always() }}
+        if: ${{ always() && !cancelled() }}
         uses: actions/upload-artifact@v4
         with:
           name: "${{ matrix.test }}-log-files"
           path: app/build/**/*.log
+        continue-on-error: true

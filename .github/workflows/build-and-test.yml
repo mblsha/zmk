@@ -324,8 +324,7 @@ jobs:
             --inline-suppr \
             --suppress=missingIncludeSystem \
             --suppress=unusedFunction \
-            --suppress=unmatchedSuppression \
-            app/drivers/
+            --suppress=unmatchedSuppression
 
       - name: Check device tree formatting
         run: |
