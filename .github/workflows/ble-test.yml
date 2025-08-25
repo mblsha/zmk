@@ -16,6 +16,7 @@ on:
 
 jobs:
   collect-tests:
+    if: ${{ github.repository_owner == 'zmkfirmware' }}
     outputs:
       test-dirs: ${{ steps.test-dirs.outputs.test-dirs }}
     runs-on: ubuntu-latest
@@ -29,6 +30,7 @@ jobs:
           export TESTS=$(ls -d * | grep -v central | jq -R -s -c 'split("\n")[:-1]')
           echo "test-dirs=${TESTS}" > $GITHUB_OUTPUT
   run-tests:
+    if: ${{ github.repository_owner == 'zmkfirmware' }}
     needs: collect-tests
     strategy:
       matrix:

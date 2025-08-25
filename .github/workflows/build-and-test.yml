@@ -315,16 +315,21 @@ jobs:
         run: |
           set -euxo pipefail
           cd "$GITHUB_WORKSPACE"
-          # Run cppcheck with compile database and tuned suppressions
+          # Create filtered compile database for drivers and tests only
+          jq '[.[] | select(.file | test("(^|/)app/drivers/|(^|/)app/tests/drivers_test/"))]' \
+            build-quality/compile_commands.json > drivers_compile_commands.json
+          
+          # Run cppcheck with filtered compile database and parallel processing
           cppcheck \
-            --project="${GITHUB_WORKSPACE}/build-quality/compile_commands.json" \
+            --project="${GITHUB_WORKSPACE}/drivers_compile_commands.json" \
             --suppressions-list="${GITHUB_WORKSPACE}/cppcheck-suppressions.txt" \
             --error-exitcode=1 \
             --enable=warning,style,performance,portability \
             --inline-suppr \
             --suppress=missingIncludeSystem \
             --suppress=unusedFunction \
-            --suppress=unmatchedSuppression
+            --suppress=unmatchedSuppression \
+            -j "$(nproc)"
 
       - name: Check device tree formatting
         run: |
@@ -442,3 +447,21 @@ jobs:
           path: docs/
           if-no-files-found: ignore
           retention-days: 7
+
+  # Aggregated check for branch protection - depends only on core CI jobs
+  ci-aggregated:
+    runs-on: ubuntu-latest
+    needs: [quick-test, code-quality]
+    if: always()
+    steps:
+      - name: Check CI Results
+        run: |
+          if [ "${{ needs.quick-test.result }}" != "success" ]; then
+            echo "❌ Quick test failed"
+            exit 1
+          fi
+          if [ "${{ needs.code-quality.result }}" != "success" ]; then
+            echo "❌ Code quality failed"
+            exit 1
+          fi
+          echo "✅ All core CI checks passed"

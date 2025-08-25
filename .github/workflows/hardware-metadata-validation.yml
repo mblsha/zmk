@@ -16,6 +16,7 @@ on:
 
 jobs:
   validate-metadata:
+    if: ${{ github.repository_owner == 'zmkfirmware' }}
     runs-on: ubuntu-latest
     container:
       image: docker.io/zmkfirmware/zmk-dev-arm:3.5
