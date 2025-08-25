@@ -17,13 +17,13 @@ properties:
     type: int
     default: 1
     enum:
-      - 1  # Empty
-      - 2  # TS2200 Library A (2 to 3V LRA)
-      - 3  # TS2200 Library B (3 to 5V LRA)
-      - 4  # TS2200 Library C (3 to 5V LRA, higher strength)
-      - 5  # TS2200 Library D (3 to 5V LRA, lower strength)
-      - 6  # LRA Library
-      - 7  # TS2200 Library F (4 to 5V LRA)
+      - 1 # Empty
+      - 2 # TS2200 Library A (2 to 3V LRA)
+      - 3 # TS2200 Library B (3 to 5V LRA)
+      - 4 # TS2200 Library C (3 to 5V LRA, higher strength)
+      - 5 # TS2200 Library D (3 to 5V LRA, lower strength)
+      - 6 # LRA Library
+      - 7 # TS2200 Library F (4 to 5V LRA)
     description: |
       Waveform library to use. Different libraries are optimized
       for different actuator types and voltage ranges.
@@ -32,8 +32,8 @@ properties:
     type: int
     default: 1
     enum:
-      - 0  # ERM (Eccentric Rotating Mass)
-      - 1  # LRA (Linear Resonant Actuator)
+      - 0 # ERM (Eccentric Rotating Mass)
+      - 1 # LRA (Linear Resonant Actuator)
     description: |
       Type of haptic actuator connected to the DRV2605.
 

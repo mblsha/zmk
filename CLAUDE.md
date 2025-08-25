@@ -1,6 +1,7 @@
 # ZMK Custom Development Guide
 
-This document explains how to build, test, and work with this custom ZMK firmware featuring Sharp Memory LCD, BlackBerry trackpad, and DRV2605 haptic feedback.
+This document explains how to build, test, and work with this custom ZMK firmware featuring Sharp
+Memory LCD, BlackBerry trackpad, and DRV2605 haptic feedback.
 
 ## Quick Start
 
@@ -42,8 +43,11 @@ cd app/tests
 ```
 
 **Test Categories:**
-- **Unit Tests**: Driver-level tests with mocking (BlackBerry trackpad, DRV2605 haptic, display integration)
-- **Behavioral Tests**: ZMK integration tests (haptic feedback patterns, trackpad input processing, display widgets)
+
+- **Unit Tests**: Driver-level tests with mocking (BlackBerry trackpad, DRV2605 haptic, display
+  integration)
+- **Behavioral Tests**: ZMK integration tests (haptic feedback patterns, trackpad input processing,
+  display widgets)
 - **Integration Tests**: Multi-component system validation
 - **Performance Tests**: Latency, throughput, and resource usage benchmarks
 
@@ -52,24 +56,28 @@ cd app/tests
 GitHub Actions provides comprehensive automated testing:
 
 **Quick Test (on every PR/push):**
+
 - Builds firmware for nice!nano v2 with custom drivers
 - Runs driver unit tests on native_posix
 - Basic code quality checks and formatting validation
 - Uploads firmware artifacts and test results
 
 **Comprehensive Test (daily + `[test-all]` commits):**
+
 - Full test suite execution (unit + behavioral + integration)
 - Performance benchmarking and regression detection
 - Code coverage analysis with detailed reporting
 - Security scanning and static analysis
 
 **Additional Jobs:**
+
 - **Code Quality**: Static analysis, formatting checks, device tree validation
 - **Security Analysis**: Sensitive data detection, dependency scanning
 - **Documentation**: API documentation generation, example validation
 - **Hardware Validation**: Ready for hardware-in-the-loop testing (when available)
 
 **Test Triggers:**
+
 ```bash
 # Run comprehensive tests on specific commits
 git commit -m "feat: improve trackpad sensitivity [test-all]"
@@ -114,6 +122,7 @@ git commit -m "feat: improve trackpad sensitivity [test-all]"
 The keyboard is configured in `app/boards/shields/my_keyboard/`:
 
 **Hardware Features:**
+
 - **Board**: nice!nano v2 (nRF52840)
 - **Matrix**: 2x2 key matrix (demo configuration)
 - **Display**: Sharp Memory LCD LS013B7DH03 (128x128px) via SPI
@@ -121,6 +130,7 @@ The keyboard is configured in `app/boards/shields/my_keyboard/`:
 - **Haptics**: DRV2605 LRA driver via I2C
 
 **Pin Assignments:**
+
 ```
 GPIO Pins:
 - Rows: P0.21, P0.20 (with pull-down)
@@ -135,6 +145,7 @@ GPIO Pins:
 ### Custom Drivers
 
 #### BlackBerry Trackpad (`app/drivers/input/blackberry_trackpad.c`)
+
 - SPI-based optical pointing device
 - Motion detection with X/Y coordinate reporting
 - Configurable sensitivity and scaling
@@ -142,12 +153,14 @@ GPIO Pins:
 - Integration with ZMK input subsystem
 
 **Key Features:**
+
 - Motion threshold detection
 - Coordinate scaling for different resolutions
 - Power management support
 - Zephyr device model compliance
 
 #### DRV2605 Haptic Driver (`app/drivers/misc/drv2605.c`)
+
 - I2C-based LRA (Linear Resonant Actuator) driver
 - Auto-calibration support
 - Waveform library with 123+ effects
@@ -155,6 +168,7 @@ GPIO Pins:
 - Power management integration
 
 **Key Features:**
+
 - Automatic LRA calibration
 - Built-in waveform library
 - Custom sequence support
@@ -168,7 +182,8 @@ Located in `app/dts/bindings/`:
 - `input/blackberry,trackpad.yaml` - BlackBerry trackpad configuration
 - `misc/ti,drv2605.yaml` - DRV2605 haptic driver configuration
 
-Properties include SPI/I2C configuration, GPIO assignments, timing parameters, and device-specific settings.
+Properties include SPI/I2C configuration, GPIO assignments, timing parameters, and device-specific
+settings.
 
 ### Testing Infrastructure
 
@@ -180,6 +195,7 @@ Unit tests in `app/tests/drivers_test/`:
 - **Coverage reporting** for driver functionality
 
 Test structure:
+
 ```c
 // Example test case
 void test_trackpad_motion_detection(void) {
@@ -193,16 +209,19 @@ void test_trackpad_motion_detection(void) {
 ## Build System Integration
 
 ### Kconfig System
+
 - `app/drivers/Kconfig` - Driver configuration options
 - `app/boards/shields/my_keyboard/Kconfig.defconfig` - Shield defaults
 - Conditional compilation for optional features
 
 ### CMake Integration
+
 - `app/drivers/CMakeLists.txt` - Driver build rules
 - `app/CMakeLists.txt` - Main application integration
 - Automatic driver discovery and compilation
 
 ### West Workspace
+
 - `west.yml` - Workspace configuration
 - Module dependencies (Zephyr, HAL drivers, etc.)
 - Version pinning for reproducible builds
@@ -221,6 +240,7 @@ void test_trackpad_motion_detection(void) {
 ### Debugging
 
 **Build Issues:**
+
 ```bash
 # Verbose build output
 ./zmk-docker.sh west build -s app -b nice_nano_v2 -- -DSHIELD=my_keyboard -v
@@ -230,6 +250,7 @@ void test_trackpad_motion_detection(void) {
 ```
 
 **Runtime Issues:**
+
 - Enable USB logging via `zmk-usb-logging` snippet
 - Use RTT logging for wireless debugging
 - Check power management states
@@ -259,11 +280,13 @@ CONFIG_BT_CTLR_TX_PWR_PLUS_8=y
 ## Hardware Variants
 
 ### Current Configuration (Stable)
+
 - Basic 2x2 matrix with Sharp Memory LCD
 - LVGL graphics for status display
 - Size: ~534KB firmware
 
 ### Full Configuration (Development)
+
 - All peripherals enabled (display + trackpad + haptics)
 - Complete input processing pipeline
 - Enhanced user interaction
@@ -274,14 +297,17 @@ CONFIG_BT_CTLR_TX_PWR_PLUS_8=y
 ### Common Build Errors
 
 **"offsets.h not found"**
+
 - Caused by circular dependency in driver compilation
 - Solution: Build offsets target first or disable custom drivers temporarily
 
 **"Unknown vendor prefix"**
+
 - Missing vendor prefix in `dts/bindings/vendor-prefixes.txt`
 - Add required vendor (e.g., "blackberry BlackBerry Limited")
 
 **Kconfig dependency loops**
+
 - Circular dependencies in Kconfig files
 - Review and remove duplicate or conflicting configurations
 
@@ -302,4 +328,5 @@ CONFIG_BT_CTLR_TX_PWR_PLUS_8=y
 
 ## License
 
-This code follows ZMK's MIT license. Custom drivers include appropriate SPDX headers and attribution.
+This code follows ZMK's MIT license. Custom drivers include appropriate SPDX headers and
+attribution.

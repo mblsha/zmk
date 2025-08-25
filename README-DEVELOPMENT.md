@@ -1,6 +1,7 @@
 # ZMK Custom Keyboard Development Setup
 
-This repository contains a complete ZMK development setup with custom drivers for a keyboard featuring:
+This repository contains a complete ZMK development setup with custom drivers for a keyboard
+featuring:
 
 - **Sharp Memory LCD display** (LS013B7DH03)
 - **LRA haptic feedback** (DRV2605)
@@ -11,12 +12,14 @@ This repository contains a complete ZMK development setup with custom drivers fo
 ## Hardware Features
 
 ### Display
+
 - Sharp Memory LCD (128x128 pixels)
 - SPI interface with EXTCOMIN signal
 - Ultra-low power consumption
 - Excellent outdoor visibility
 
 ### Haptic Feedback
+
 - TI DRV2605 haptic motor driver
 - Support for both LRA and ERM actuators
 - Multiple waveform libraries
@@ -24,6 +27,7 @@ This repository contains a complete ZMK development setup with custom drivers fo
 - I2C interface
 
 ### Pointing Device
+
 - BlackBerry trackpad (optical)
 - SPI interface with motion interrupt
 - Configurable scaling and inversion
@@ -40,6 +44,7 @@ This repository contains a complete ZMK development setup with custom drivers fo
 ### Setup
 
 1. **Clone and initialize workspace:**
+
    ```bash
    git clone <your-repo-url>
    cd zmk
@@ -48,6 +53,7 @@ This repository contains a complete ZMK development setup with custom drivers fo
    ```
 
 2. **Build firmware:**
+
    ```bash
    ./zmk-docker.sh west build -s app -b nice_nano_v2 -- -DSHIELD=my_keyboard
    ```
@@ -58,12 +64,14 @@ This repository contains a complete ZMK development setup with custom drivers fo
 ### Development Workflow
 
 1. **Install pre-commit hooks:**
+
    ```bash
    pip install pre-commit
    pre-commit install -c .pre-commit-config-custom.yaml
    ```
 
 2. **Run tests:**
+
    ```bash
    ./zmk-docker.sh west test -p -v app/tests/drivers_test
    ```
@@ -110,25 +118,26 @@ app/
 
 ### nice!nano v2 Pin Assignments
 
-| Component | Connection | Pin |
-|-----------|------------|-----|
-| Display CS | SPI CS0 | P0.08 |
-| Display EXTCOMIN | GPIO | P0.10 |
-| Trackpad CS | SPI CS1 | P0.09 |
-| Trackpad IRQ | GPIO | P0.07 |
-| Haptic SDA | I2C SDA | P0.17 |
-| Haptic SCL | I2C SCL | P0.20 |
-| Haptic EN | GPIO | P0.06 |
-| Row 0 | GPIO | P0.21 |
-| Row 1 | GPIO | P0.20 |
-| Col 0 | GPIO | P0.02 |
-| Col 1 | GPIO | P0.03 |
+| Component        | Connection | Pin   |
+| ---------------- | ---------- | ----- |
+| Display CS       | SPI CS0    | P0.08 |
+| Display EXTCOMIN | GPIO       | P0.10 |
+| Trackpad CS      | SPI CS1    | P0.09 |
+| Trackpad IRQ     | GPIO       | P0.07 |
+| Haptic SDA       | I2C SDA    | P0.17 |
+| Haptic SCL       | I2C SCL    | P0.20 |
+| Haptic EN        | GPIO       | P0.06 |
+| Row 0            | GPIO       | P0.21 |
+| Row 1            | GPIO       | P0.20 |
+| Col 0            | GPIO       | P0.02 |
+| Col 1            | GPIO       | P0.03 |
 
 ## Custom Drivers
 
 ### BlackBerry Trackpad Driver
 
 **Features:**
+
 - SPI communication with optical trackpad
 - Motion interrupt handling
 - Configurable coordinate scaling/inversion
@@ -136,6 +145,7 @@ app/
 - Power management support
 
 **Configuration:**
+
 ```dts
 bb_trackpad: bb_trackpad@1 {
     compatible = "blackberry,trackpad";
@@ -152,6 +162,7 @@ bb_trackpad: bb_trackpad@1 {
 ### DRV2605 Haptic Driver
 
 **Features:**
+
 - I2C communication with DRV2605
 - Multiple actuator types (LRA/ERM)
 - Waveform library support
@@ -160,6 +171,7 @@ bb_trackpad: bb_trackpad@1 {
 - Custom waveform sequences
 
 **API:**
+
 ```c
 // Play single waveform
 drv2605_play_waveform(dev, DRV2605_WAVEFORM_CLICK);
@@ -177,11 +189,13 @@ drv2605_stop(dev);
 ### Unit Tests
 
 Run native tests with:
+
 ```bash
 ./zmk-docker.sh west build -s app/tests/drivers_test -b native_posix -t run
 ```
 
 Tests include:
+
 - Driver initialization
 - Hardware communication
 - Power management
@@ -192,11 +206,13 @@ Tests include:
 For testing with actual hardware:
 
 1. **Flash test firmware:**
+
    ```bash
    ./zmk-docker.sh west build -s app -b nice_nano_v2 -- -DSHIELD=my_keyboard -DCONFIG_ZMK_USB_LOGGING=y
    ```
 
 2. **Monitor logs:**
+
    ```bash
    # Connect to serial console
    minicom -D /dev/ttyACM0 -b 115200
@@ -212,6 +228,7 @@ For testing with actual hardware:
 ### Build Issues
 
 **West initialization fails:**
+
 ```bash
 # Clean and retry
 rm -rf .west modules zephyr
@@ -220,6 +237,7 @@ rm -rf .west modules zephyr
 ```
 
 **Driver compilation errors:**
+
 - Check device tree syntax with `scripts/check-devicetree-syntax.sh`
 - Verify Kconfig dependencies are enabled
 - Review driver logs for initialization failures
@@ -227,16 +245,19 @@ rm -rf .west modules zephyr
 ### Hardware Issues
 
 **Display not working:**
+
 - Verify SPI connections (MOSI, SCLK, CS)
 - Check EXTCOMIN signal wiring
 - Ensure power supply is adequate
 
 **Trackpad not responding:**
+
 - Check IRQ GPIO connection
 - Verify SPI CS and communication
 - Review motion interrupt configuration
 
 **Haptic not working:**
+
 - Check I2C connection (SDA, SCL)
 - Verify enable GPIO if used
 - Review DRV2605 logs for init status
@@ -261,6 +282,7 @@ rm -rf .west modules zephyr
 ## CI/CD Pipeline
 
 GitHub Actions automatically:
+
 - **Builds firmware** for the custom keyboard
 - **Runs unit tests** on native_posix
 - **Checks code quality** (formatting, syntax)
@@ -269,6 +291,7 @@ GitHub Actions automatically:
 ### Customizing CI
 
 Edit `.github/workflows/build-and-test.yml` to:
+
 - Add new build targets
 - Include additional tests
 - Deploy to different environments
@@ -278,6 +301,7 @@ Edit `.github/workflows/build-and-test.yml` to:
 To prepare code for upstream contribution:
 
 1. **Split changes into logical commits:**
+
    ```bash
    git rebase -i HEAD~n  # Clean up commit history
    ```

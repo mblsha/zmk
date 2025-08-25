@@ -1,13 +1,12 @@
 # Contributing To ZMK
 
 Thanks for taking an interest in contributing to ZMK! After reading through the documentation, if
-you have any questions, please come join us on the
-[ZMK Discord Server][discord-invite].
+you have any questions, please come join us on the [ZMK Discord Server][discord-invite].
 
 ## Code of Conduct
 
-All community members are expected to abide by the [Code of Conduct][code-of-conduct].
-For any and all conduct inquiries or concerns, please contact conduct@zmk.dev.
+All community members are expected to abide by the [Code of Conduct][code-of-conduct]. For any and
+all conduct inquiries or concerns, please contact conduct@zmk.dev.
 
 [code-of-conduct]: https://github.com/zmkfirmware/zmk/blob/main/CODE_OF_CONDUCT.md
 
@@ -25,13 +24,14 @@ abilities. These include:
 ## Chat Support
 
 Providing user support on the [ZMK Discord Server][discord-invite] is a great way to help the
-project. In particular, answering questions in the [#help](https://discord.com/channels/719497620560543766/719909884769992755) channel is incredibly appreciated.
+project. In particular, answering questions in the
+[#help](https://discord.com/channels/719497620560543766/719909884769992755) channel is incredibly
+appreciated.
 
 ## Issue Reporting/Commenting
 
-Often, you might encounter unexpected behavior when building, flashing, or running the ZMK
-firmware. Submitting or commenting on issues on GitHub is a great way to contribute to the
-ZMK project.
+Often, you might encounter unexpected behavior when building, flashing, or running the ZMK firmware.
+Submitting or commenting on issues on GitHub is a great way to contribute to the ZMK project.
 
 ### Before Submitting a Report
 
@@ -54,10 +54,11 @@ To open a report:
 
 ## Testing
 
-The `help wanted` label will be added to any [pull requests](https://github.com/zmkfirmware/zmk/pulls?q=is%3Aopen+is%3Apr+label%3A%22help+wanted%22)
-or [issues](https://github.com/zmkfirmware/zmk/issues?q=is%3Aopen+is%3Aissue+label%3A%22help+wanted%22)
-where user testing can assist the ZMK contributors to verify fixes, confirm
-bugs, etc.
+The `help wanted` label will be added to any
+[pull requests](https://github.com/zmkfirmware/zmk/pulls?q=is%3Aopen+is%3Apr+label%3A%22help+wanted%22)
+or
+[issues](https://github.com/zmkfirmware/zmk/issues?q=is%3Aopen+is%3Aissue+label%3A%22help+wanted%22)
+where user testing can assist the ZMK contributors to verify fixes, confirm bugs, etc.
 
 When providing testing feedback, please provide:
 
@@ -83,12 +84,14 @@ documentation to areas not currently covered are greatly appreciated.
 
 ### Formatting
 
-ZMK uses `prettier` to format documentation files. You can run prettier with `npm run prettier:format`.
-You can setup git to run prettier automatically when you commit by installing the pre-commit hooks: `pip3 install pre-commit`, `pre-commit install`.
+ZMK uses `prettier` to format documentation files. You can run prettier with
+`npm run prettier:format`. You can setup git to run prettier automatically when you commit by
+installing the pre-commit hooks: `pip3 install pre-commit`, `pre-commit install`.
 
 ### Linting
 
-This repository utilizes ESLint for code linting to ensure consistent code style and identify potential errors or bugs early in the development process.
+This repository utilizes ESLint for code linting to ensure consistent code style and identify
+potential errors or bugs early in the development process.
 
 You can run ESLint with `npm run lint` to verify your changes.
 
@@ -103,10 +106,11 @@ your own locally built firmware.
 ### Formatting
 
 ZMK uses `clang-format` to ensure consist formatting for our source code. Before submitting your
-changes, make sure you've manually run `clang-format`, or have your IDE configured to auto-format
-on save.
+changes, make sure you've manually run `clang-format`, or have your IDE configured to auto-format on
+save.
 
-You can setup git to run `clang-format` automatically when you commit by installing the pre-commit hooks: `pip3 install pre-commit`, `pre-commit install`.
+You can setup git to run `clang-format` automatically when you commit by installing the pre-commit
+hooks: `pip3 install pre-commit`, `pre-commit install`.
 
 ### Commit Messages
 
@@ -119,8 +123,8 @@ Further documentation and details will be provided here soon.
 
 When opening a pull request with your changes, please:
 
-- Submit the PR to the `main` branch of the
-  [`zmkfirmware/zmk`](https://github.com/zmkfirmware/zmk) repository.
+- Submit the PR to the `main` branch of the [`zmkfirmware/zmk`](https://github.com/zmkfirmware/zmk)
+  repository.
 - Use a descriptive title that summarizes the change.
 - In the description, include:
   - References to any open issues fixed by the PR.

@@ -82,32 +82,32 @@ hardware_configs:
 test_data:
   trackpad_motions:
     basic_movement:
-      - {dx: 5, dy: 0, description: "Right movement"}
-      - {dx: -5, dy: 0, description: "Left movement"}
-      - {dx: 0, dy: 5, description: "Down movement"}
-      - {dx: 0, dy: -5, description: "Up movement"}
+      - { dx: 5, dy: 0, description: "Right movement" }
+      - { dx: -5, dy: 0, description: "Left movement" }
+      - { dx: 0, dy: 5, description: "Down movement" }
+      - { dx: 0, dy: -5, description: "Up movement" }
 
     complex_patterns:
-      - {pattern: "circle", radius: 10, steps: 16}
-      - {pattern: "figure_eight", width: 20, height: 10}
-      - {pattern: "spiral", turns: 3, radius: 15}
+      - { pattern: "circle", radius: 10, steps: 16 }
+      - { pattern: "figure_eight", width: 20, height: 10 }
+      - { pattern: "spiral", turns: 3, radius: 15 }
 
   haptic_waveforms:
     basic_feedback:
-      - {id: 1, name: "click", intensity: 80}
-      - {id: 2, name: "tick", intensity: 60}
-      - {id: 12, name: "strong_click", intensity: 100}
+      - { id: 1, name: "click", intensity: 80 }
+      - { id: 2, name: "tick", intensity: 60 }
+      - { id: 12, name: "strong_click", intensity: 100 }
 
     sequences:
-      - {name: "startup", waveforms: [47, 48, 49]}
-      - {name: "layer_change", waveforms: [1, 2]}
-      - {name: "error_feedback", waveforms: [10, 11]}
+      - { name: "startup", waveforms: [47, 48, 49] }
+      - { name: "layer_change", waveforms: [1, 2] }
+      - { name: "error_feedback", waveforms: [10, 11] }
 
   display_patterns:
     test_images:
-      - {name: "checkerboard", width: 128, height: 128}
-      - {name: "diagonal_lines", angle: 45}
-      - {name: "text_rendering", font: "default", text: "ZMK Test"}
+      - { name: "checkerboard", width: 128, height: 128 }
+      - { name: "diagonal_lines", angle: 45 }
+      - { name: "text_rendering", font: "default", text: "ZMK Test" }
 
     status_widgets:
       - battery_indicator
