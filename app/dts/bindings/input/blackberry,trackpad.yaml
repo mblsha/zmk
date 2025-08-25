@@ -15,7 +15,7 @@ properties:
       This pin should be connected to the trackpad's motion interrupt output.
 
   shutdown-gpios:
-    type: phandle-array  
+    type: phandle-array
     description: |
       GPIO used to enable/disable the trackpad.
       Setting this pin low puts the trackpad in shutdown mode.
@@ -43,6 +43,6 @@ properties:
 
   scale-y:
     type: int
-    default: 1  
+    default: 1
     description: |
       Scale factor for Y axis movement. Higher values increase sensitivity.

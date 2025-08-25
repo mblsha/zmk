@@ -15,14 +15,15 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: docker.io/zmkfirmware/zmk-build-arm:3.5
-    
+    defaults:
+      run:
+        shell: bash
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          path: zmk
 
-      - name: Cache west modules  
+      - name: Cache west modules
         uses: actions/cache@v4
         with:
           path: |
@@ -35,16 +36,20 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-west-
 
-      - name: Initialize west workspace
+      - name: Initialize west workspace (idempotent)
         run: |
-          cd zmk
-          west init -l app/
+          set -euxo pipefail
+          cd "$GITHUB_WORKSPACE"
+          if ! west topdir >/dev/null 2>&1; then
+            west init -l app/
+          fi
           west update
 
       - name: Check native_posix support
         id: check_native
         run: |
-          cd zmk
+          set -euxo pipefail
+          cd "$GITHUB_WORKSPACE"
           if west build -s app/tests/drivers_test -b native_posix --dry-run >/dev/null 2>&1; then
             echo "native_available=true" >> $GITHUB_OUTPUT
           else
@@ -53,14 +58,15 @@ jobs:
 
       - name: Build firmware (my_keyboard)
         run: |
-          cd zmk
+          set -euxo pipefail
+          cd "$GITHUB_WORKSPACE"
           west build -s app -b nice_nano_v2 -- -DSHIELD=my_keyboard
 
       - name: Build native_posix tests (emit DTS)
         if: steps.check_native.outputs.native_available == 'true'
         run: |
           set -euxo pipefail
-          cd zmk
+          cd "$GITHUB_WORKSPACE"
           west build -s app/tests/drivers_test -b native_posix
           echo "===== zephyr.dts (tail) ====="
           tail -n 200 build/zephyr/zephyr.dts || true
@@ -76,7 +82,7 @@ jobs:
         if: steps.check_native.outputs.native_available == 'true'
         run: |
           set -euxo pipefail
-          cd zmk/build
+          cd "$GITHUB_WORKSPACE/build"
           ctest --output-on-failure || (echo "::error::Tests failed"; exit 1)
 
       - name: Upload firmware artifacts
@@ -84,8 +90,8 @@ jobs:
         with:
           name: firmware-${{ github.sha }}
           path: |
-            zmk/build/zephyr/zmk.uf2
-            zmk/build/zephyr/zmk.hex
+            build/zephyr/zmk.uf2
+            build/zephyr/zmk.hex
           if-no-files-found: warn
           retention-days: 7
 
@@ -93,7 +99,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: test-results-${{ github.sha }}
-          path: zmk/build/zephyr/zephyr.exe
+          path: build/zephyr/zephyr.exe
           if-no-files-found: ignore
           retention-days: 7
 
@@ -102,6 +108,9 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: docker.io/zmkfirmware/zmk-build-arm:3.5
+    defaults:
+      run:
+        shell: bash
     if: |
       github.event_name == 'schedule' ||
       (github.event_name == 'push' &&
@@ -109,12 +118,10 @@ jobs:
       (github.event_name == 'pull_request' &&
        (contains(github.event.pull_request.title, '[test-all]') ||
         contains(github.event.pull_request.body, '[test-all]')))
-    
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          path: zmk
 
       - name: Cache west modules
         uses: actions/cache@v4
@@ -127,16 +134,20 @@ jobs:
             .west/
           key: ${{ runner.os }}-west-${{ hashFiles('app/west.yml') }}
 
-      - name: Initialize west workspace
+      - name: Initialize west workspace (idempotent)
         run: |
-          cd zmk
-          west init -l app/
+          set -euxo pipefail
+          cd "$GITHUB_WORKSPACE"
+          if ! west topdir >/dev/null 2>&1; then
+            west init -l app/
+          fi
           west update
 
       - name: Check native_posix support
         id: check_native
         run: |
-          cd zmk
+          set -euxo pipefail
+          cd "$GITHUB_WORKSPACE"
           if west build -s app/tests/drivers_test -b native_posix --dry-run >/dev/null 2>&1; then
             echo "native_available=true" >> $GITHUB_OUTPUT
           else
@@ -150,36 +161,39 @@ jobs:
 
       - name: Ensure test runner executable
         run: |
-          cd zmk/app/tests
+          set -euxo pipefail
+          cd "$GITHUB_WORKSPACE/app/tests"
           git update-index --chmod=+x test-runner.sh || true
           chmod +x test-runner.sh
 
       - name: Run comprehensive test suite
         if: steps.check_native.outputs.native_available == 'true'
         run: |
-          cd zmk/app/tests
+          set -euxo pipefail
+          cd "$GITHUB_WORKSPACE/app/tests"
           bash -euxo pipefail ./test-runner.sh --verbose --coverage all
 
       - name: Generate test report
         run: |
-          cd zmk
+          set -euxo pipefail
+          cd "$GITHUB_WORKSPACE"
           echo "## Test Results" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          
+
           if [ -f "build-test/test-results/pass-fail.log" ]; then
             PASS_COUNT=$(grep -c "^PASS:" build-test/test-results/pass-fail.log || echo "0")
             FAIL_COUNT=$(grep -c "^FAIL:" build-test/test-results/pass-fail.log || echo "0")
             TOTAL=$((PASS_COUNT + FAIL_COUNT))
-            
+
             echo "- **Total Tests:** $TOTAL" >> $GITHUB_STEP_SUMMARY
             echo "- **Passed:** $PASS_COUNT" >> $GITHUB_STEP_SUMMARY
             echo "- **Failed:** $FAIL_COUNT" >> $GITHUB_STEP_SUMMARY
-            
+
             if [ $TOTAL -gt 0 ]; then
               SUCCESS_RATE=$((PASS_COUNT * 100 / TOTAL))
               echo "- **Success Rate:** ${SUCCESS_RATE}%" >> $GITHUB_STEP_SUMMARY
             fi
-            
+
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "### Failed Tests" >> $GITHUB_STEP_SUMMARY
             if [ $FAIL_COUNT -gt 0 ]; then
@@ -194,7 +208,7 @@ jobs:
         with:
           name: comprehensive-test-results-${{ github.sha }}
           path: |
-            zmk/build-test/test-results/
+            build-test/test-results/
           if-no-files-found: warn
           retention-days: 7
 
@@ -203,7 +217,7 @@ jobs:
         with:
           name: coverage-report-${{ github.sha }}
           path: |
-            zmk/build-test/test-results/coverage/
+            build-test/test-results/coverage/
           if-no-files-found: ignore
           retention-days: 7
 
@@ -211,7 +225,7 @@ jobs:
   hardware-validation:
     runs-on: ubuntu-latest
     if: github.event_name == 'schedule' && false  # Disabled until hardware setup is available
-    
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -221,7 +235,7 @@ jobs:
           echo "Setting up hardware-in-the-loop testing..."
           # This would configure actual hardware for testing
           # - nice!nano v2 boards
-          # - Sharp Memory LCD displays  
+          # - Sharp Memory LCD displays
           # - DRV2605 haptic drivers
           # - BlackBerry trackpads
           # - Test automation framework
@@ -240,7 +254,10 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: docker.io/zmkfirmware/zmk-build-arm:3.5
-    
+    defaults:
+      run:
+        shell: bash
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -258,15 +275,19 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-west-
 
-      - name: Initialize west workspace
-        working-directory: zmk
+      - name: Initialize west workspace (idempotent)
         run: |
-          west init -l app/
+          set -euxo pipefail
+          cd "$GITHUB_WORKSPACE"
+          if ! west topdir >/dev/null 2>&1; then
+            west init -l app/
+          fi
           west update
 
       - name: Generate compile database
-        working-directory: zmk
         run: |
+          set -euxo pipefail
+          cd "$GITHUB_WORKSPACE"
           west build -s app -b nice_nano_v2 -- \
             -DSHIELD=my_keyboard \
             -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
@@ -277,9 +298,10 @@ jobs:
           apt-get install -y --no-install-recommends clang-format cppcheck clang-tidy
 
       - name: Check code formatting
-        working-directory: zmk
         continue-on-error: true
         run: |
+          set -euxo pipefail
+          cd "$GITHUB_WORKSPACE"
           if command -v clang-format >/dev/null 2>&1; then
             find app/drivers -name "*.c" -o -name "*.h" | \
               xargs -r clang-format --dry-run --Werror || {
@@ -290,11 +312,12 @@ jobs:
           fi
 
       - name: Run static analysis
-        working-directory: zmk
         run: |
+          set -euxo pipefail
+          cd "$GITHUB_WORKSPACE"
           # Run cppcheck with compile database and tuned suppressions
           cppcheck \
-            --project="${GITHUB_WORKSPACE}/zmk/build/compile_commands.json" \
+            --project="${GITHUB_WORKSPACE}/build/compile_commands.json" \
             --suppressions-list="${GITHUB_WORKSPACE}/cppcheck-suppressions.txt" \
             --error-exitcode=1 \
             --enable=warning,style,performance,portability \
@@ -304,7 +327,7 @@ jobs:
             --suppress=unmatchedSuppression \
             app/drivers/
 
-      - name: Check device tree formatting  
+      - name: Check device tree formatting
         run: |
           find app/boards app/dts -name "*.overlay" -o -name "*.dtsi" -o -name "*.dts" | \
           while read file; do
@@ -338,7 +361,7 @@ jobs:
   security-analysis:
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request' || github.event_name == 'schedule'
-    
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -367,7 +390,7 @@ jobs:
   # Documentation and examples validation
   documentation:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -386,7 +409,7 @@ jobs:
         run: |
           # Validate that example configurations are buildable
           echo "Validating example configurations..."
-          
+
           # Check that device tree examples are syntactically correct
           for overlay in app/boards/shields/*/*.overlay; do
             if [ -f "$overlay" ]; then
@@ -399,12 +422,12 @@ jobs:
         run: |
           # Generate documentation for custom driver APIs
           mkdir -p docs/api
-          
+
           echo "# ZMK Custom Driver API Reference" > docs/api/README.md
           echo "" >> docs/api/README.md
           echo "Generated: $(date)" >> docs/api/README.md
           echo "" >> docs/api/README.md
-          
+
           # Extract function prototypes and documentation from headers
           find app/include -name "*.h" -exec grep -l "drv2605\|blackberry\|trackpad" {} \; | \
           while read header; do

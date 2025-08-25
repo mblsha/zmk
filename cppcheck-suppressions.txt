@@ -1,15 +1,12 @@
-# cppcheck-suppressions.txt
-# Zephyr guarantees dev->data/config non-null at init; analyzer can't infer
-nullPointer:app/drivers/input/blackberry_trackpad.c:*
-nullPointer:app/drivers/misc/drv2605.c:*
+# Zephyr guarantees dev->data/config non-null at init; analyzer can't infer it:
+nullPointer:app/drivers/input/blackberry_trackpad.c:155
+nullPointer:app/drivers/input/blackberry_trackpad.c:156
+nullPointer:app/drivers/input/blackberry_trackpad.c:157
+nullPointer:app/drivers/misc/drv2605.c:272
+nullPointer:app/drivers/misc/drv2605.c:273
+nullPointer:app/drivers/misc/drv2605.c:274
 
-# Zephyr device model handles static initialization properly
-uninitMemberVar:app/drivers/input/blackberry_trackpad.c:*
-uninitMemberVar:app/drivers/misc/drv2605.c:*
-
-# Standard Zephyr logging and device patterns
-unusedFunction:app/drivers/input/blackberry_trackpad.c:*
-unusedFunction:app/drivers/misc/drv2605.c:*
-
-# Test files can have unused functions for mock/emulation
-unusedFunction:app/tests/drivers_test/src/test_*
+# Standard Zephyr/embedded suppressions for false positives:
+missingIncludeSystem
+unusedFunction
+unmatchedSuppression

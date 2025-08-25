@@ -77,7 +77,7 @@ This repository contains a complete ZMK development setup with custom drivers fo
 app/
 ├── boards/shields/my_keyboard/     # Custom keyboard definition
 │   ├── Kconfig.defconfig          # Default configuration
-│   ├── Kconfig.shield             # Shield enablement  
+│   ├── Kconfig.shield             # Shield enablement
 │   ├── my_keyboard.conf           # Build configuration
 │   ├── my_keyboard.keymap         # Key layout
 │   ├── my_keyboard.overlay        # Hardware definition
@@ -284,7 +284,7 @@ To prepare code for upstream contribution:
 
 2. **Create separate PRs for:**
    - Device tree bindings
-   - Driver implementation  
+   - Driver implementation
    - Tests and documentation
 
 3. **Follow ZMK contribution guidelines:**

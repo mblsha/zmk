@@ -26,7 +26,7 @@ Run comprehensive test suites for all custom functionality:
 # Quick unit tests for drivers
 ./zmk-docker.sh west build -s app/tests/drivers_test -b native_posix -t run
 
-# Run comprehensive test suite 
+# Run comprehensive test suite
 cd app/tests
 ./test-runner.sh all
 
@@ -95,11 +95,11 @@ git commit -m "feat: improve trackpad sensitivity [test-all]"
 │   ├── drivers/                     # Custom drivers
 │   │   ├── input/                   # Input device drivers
 │   │   │   └── blackberry_trackpad.c  # BlackBerry trackpad driver
-│   │   └── misc/                    # Miscellaneous drivers  
+│   │   └── misc/                    # Miscellaneous drivers
 │   │       └── drv2605.c           # DRV2605 haptic driver
 │   ├── dts/bindings/               # Device tree bindings
 │   │   ├── input/blackberry,trackpad.yaml      # Trackpad binding
-│   │   ├── misc/ti,drv2605.yaml                # Haptic binding  
+│   │   ├── misc/ti,drv2605.yaml                # Haptic binding
 │   │   └── vendor-prefixes.txt                 # Vendor prefixes
 │   └── tests/drivers_test/         # Unit tests
 │       ├── src/test_blackberry_trackpad.c     # Trackpad tests
@@ -125,7 +125,7 @@ The keyboard is configured in `app/boards/shields/my_keyboard/`:
 GPIO Pins:
 - Rows: P0.21, P0.20 (with pull-down)
 - Cols: P0.02, P0.03
-- LCD CS: P0.08, EXTCOMIN: P0.10  
+- LCD CS: P0.08, EXTCOMIN: P0.10
 - Trackpad CS: P0.09, IRQ: P0.07
 - Haptic Enable: P0.06
 - I2C: P0.17 (SDA), P0.20 (SCL)
@@ -184,7 +184,7 @@ Test structure:
 // Example test case
 void test_trackpad_motion_detection(void) {
     // Setup mock device
-    // Simulate motion input  
+    // Simulate motion input
     // Verify coordinate output
     // Check power state
 }
@@ -197,7 +197,7 @@ void test_trackpad_motion_detection(void) {
 - `app/boards/shields/my_keyboard/Kconfig.defconfig` - Shield defaults
 - Conditional compilation for optional features
 
-### CMake Integration  
+### CMake Integration
 - `app/drivers/CMakeLists.txt` - Driver build rules
 - `app/CMakeLists.txt` - Main application integration
 - Automatic driver discovery and compilation
@@ -212,7 +212,7 @@ void test_trackpad_motion_detection(void) {
 ### Adding New Features
 
 1. **Hardware Definition**: Update device tree overlay
-2. **Driver Implementation**: Add driver to appropriate subdirectory  
+2. **Driver Implementation**: Add driver to appropriate subdirectory
 3. **Binding Creation**: Define device tree binding YAML
 4. **Integration**: Update CMakeLists.txt and Kconfig
 5. **Testing**: Create unit tests in drivers_test
@@ -244,7 +244,7 @@ CONFIG_LVGL=y
 CONFIG_ZMK_DISPLAY=y
 
 # Custom drivers (currently disabled for stable build)
-# CONFIG_BLACKBERRY_TRACKPAD=y  
+# CONFIG_BLACKBERRY_TRACKPAD=y
 # CONFIG_DRV2605=y
 
 # Power management
@@ -263,7 +263,7 @@ CONFIG_BT_CTLR_TX_PWR_PLUS_8=y
 - LVGL graphics for status display
 - Size: ~534KB firmware
 
-### Full Configuration (Development)  
+### Full Configuration (Development)
 - All peripherals enabled (display + trackpad + haptics)
 - Complete input processing pipeline
 - Enhanced user interaction
@@ -277,7 +277,7 @@ CONFIG_BT_CTLR_TX_PWR_PLUS_8=y
 - Caused by circular dependency in driver compilation
 - Solution: Build offsets target first or disable custom drivers temporarily
 
-**"Unknown vendor prefix"** 
+**"Unknown vendor prefix"**
 - Missing vendor prefix in `dts/bindings/vendor-prefixes.txt`
 - Add required vendor (e.g., "blackberry BlackBerry Limited")
 

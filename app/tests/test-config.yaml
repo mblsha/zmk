@@ -5,7 +5,7 @@ test_framework:
   version: "1.0"
   zephyr_version: "3.5.0"
   zmk_version: "main"
-  
+
 test_categories:
   unit_tests:
     description: "Driver-level unit tests using ztest framework"
@@ -13,18 +13,18 @@ test_categories:
     build_target: "native_posix"
     test_timeout: 30
     parallel_execution: false
-    
+
   behavioral_tests:
     description: "Integration tests using ZMK's behavioral test framework"
     directories:
       - "haptic-feedback"
       - "trackpad-input"
       - "display-widgets"
-    build_target: "native_posix_64" 
+    build_target: "native_posix_64"
     test_timeout: 60
     parallel_execution: true
     max_parallel_jobs: 4
-    
+
   integration_tests:
     description: "System-level integration tests"
     directories:
@@ -34,7 +34,7 @@ test_categories:
     build_target: "native_posix_64"
     test_timeout: 120
     parallel_execution: false
-    
+
   performance_tests:
     description: "Performance benchmarks and timing validation"
     directories:
@@ -57,7 +57,7 @@ execution:
   verbose_output: false
   save_logs: true
   generate_reports: true
-  
+
 # Hardware configurations for testing
 hardware_configs:
   basic:
@@ -67,7 +67,7 @@ hardware_configs:
     features:
       - display
       - basic_keymap
-      
+
   full_features:
     description: "Full feature set with all peripherals"
     shield: "my_keyboard_full"
@@ -77,38 +77,38 @@ hardware_configs:
       - haptic_feedback
       - trackpad_input
       - advanced_keymap
-      
+
 # Test data and patterns
 test_data:
   trackpad_motions:
     basic_movement:
       - {dx: 5, dy: 0, description: "Right movement"}
-      - {dx: -5, dy: 0, description: "Left movement"} 
+      - {dx: -5, dy: 0, description: "Left movement"}
       - {dx: 0, dy: 5, description: "Down movement"}
       - {dx: 0, dy: -5, description: "Up movement"}
-    
+
     complex_patterns:
       - {pattern: "circle", radius: 10, steps: 16}
       - {pattern: "figure_eight", width: 20, height: 10}
       - {pattern: "spiral", turns: 3, radius: 15}
-      
+
   haptic_waveforms:
     basic_feedback:
       - {id: 1, name: "click", intensity: 80}
       - {id: 2, name: "tick", intensity: 60}
       - {id: 12, name: "strong_click", intensity: 100}
-      
+
     sequences:
       - {name: "startup", waveforms: [47, 48, 49]}
       - {name: "layer_change", waveforms: [1, 2]}
       - {name: "error_feedback", waveforms: [10, 11]}
-      
+
   display_patterns:
     test_images:
       - {name: "checkerboard", width: 128, height: 128}
       - {name: "diagonal_lines", angle: 45}
       - {name: "text_rendering", font: "default", text: "ZMK Test"}
-      
+
     status_widgets:
       - battery_indicator
       - layer_display
@@ -122,12 +122,12 @@ performance_thresholds:
     haptic_response_ms: 3.0
     display_update_ms: 20.0
     key_press_latency_ms: 2.0
-    
+
   throughput:
     spi_min_kbps: 500
     i2c_min_kbps: 100
     display_fps_min: 30
-    
+
   resources:
     max_memory_kb: 32
     max_cpu_percent: 15
@@ -147,34 +147,34 @@ coverage_targets:
 # CI/CD integration
 ci_settings:
   quick_test_on_pr: true
-  full_test_on_merge: true  
+  full_test_on_merge: true
   nightly_comprehensive: true
   performance_weekly: true
-  
+
   failure_handling:
     retry_flaky_tests: true
     bisect_regressions: true
     notify_maintainers: true
-    
+
   artifact_retention:
     test_results_days: 30
     performance_data_days: 90
     coverage_reports_days: 60
 
-# Reporting configuration  
+# Reporting configuration
 reports:
   formats:
     - html
     - json
     - junit_xml
-    
+
   include_sections:
     - test_summary
     - failure_details
     - performance_metrics
     - coverage_analysis
     - trend_analysis
-    
+
   distribution:
     email_maintainers: true
     github_status_check: true
@@ -186,12 +186,12 @@ environments:
     verbose_output: true
     save_detailed_logs: true
     retry_count: 1
-    
+
   ci:
     verbose_output: false
     parallel_execution: true
     generate_artifacts: true
-    
+
   release:
     comprehensive_tests: true
     performance_validation: true

@@ -12,7 +12,7 @@ properties:
     type: phandle-array
     description: |
       GPIO used to enable the DRV2605 device.
-      
+
   library:
     type: int
     default: 1
@@ -45,7 +45,7 @@ properties:
       This affects the strength of vibration effects.
 
   overdrive-voltage:
-    type: int  
+    type: int
     default: 2000
     description: |
       Overdrive voltage of the actuator in millivolts.

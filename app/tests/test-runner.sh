@@ -78,7 +78,7 @@ EOF
 declare -A TEST_CATEGORIES=(
     ["drivers"]="tests/drivers_test"
     ["haptic"]="tests/haptic-feedback"
-    ["trackpad"]="tests/trackpad-input"  
+    ["trackpad"]="tests/trackpad-input"
     ["display"]="tests/display-integration"
     ["integration"]="tests/integration"
     ["performance"]="tests/performance"
@@ -87,14 +87,14 @@ declare -A TEST_CATEGORIES=(
 # Initialize test environment
 init_test_env() {
     log_info "Initializing test environment..."
-    
+
     mkdir -p "$TEST_RESULTS_DIR"
     mkdir -p "$ZMK_BUILD_DIR"
-    
+
     # Create test results summary files
     echo "# ZMK Test Results - $(date)" > "$TEST_RESULTS_DIR/summary.md"
     echo "" > "$TEST_RESULTS_DIR/pass-fail.log"
-    
+
     # Set up environment variables for tests
     export ZMK_SRC_DIR="$ZMK_ROOT/app"
     export ZMK_BUILD_DIR="$ZMK_BUILD_DIR"
@@ -105,10 +105,10 @@ init_test_env() {
 # Run driver unit tests using ztest framework
 run_driver_tests() {
     log_info "Running driver unit tests..."
-    
+
     local test_name="drivers_test"
     local build_dir="$ZMK_BUILD_DIR/$test_name"
-    
+
     # Build the test
     log_info "Building $test_name..."
     if [[ "$VERBOSE" == "1" ]]; then
@@ -116,12 +116,12 @@ run_driver_tests() {
     else
         west build -s "$ZMK_SRC_DIR/tests/drivers_test" -d "$build_dir" -b native_posix -p -- -DCONFIG_ASSERT=y >/dev/null 2>&1
     fi
-    
+
     if [[ $? -ne 0 ]]; then
         log_error "Failed to build $test_name"
         return 1
     fi
-    
+
     # Run the test
     log_info "Executing $test_name..."
     if [[ "$VERBOSE" == "1" ]]; then
@@ -129,7 +129,7 @@ run_driver_tests() {
     else
         "$build_dir/zephyr/zmk.exe" >/dev/null 2>&1
     fi
-    
+
     local result=$?
     if [[ $result -eq 0 ]]; then
         log_success "$test_name"
@@ -138,16 +138,16 @@ run_driver_tests() {
         log_error "$test_name"
         echo "FAIL: $test_name" >> "$TEST_RESULTS_DIR/pass-fail.log"
     fi
-    
+
     return $result
 }
 
 # Run behavioral tests using ZMK's test framework
 run_behavioral_tests() {
     log_info "Running behavioral tests..."
-    
+
     local test_dirs=()
-    
+
     # Find all behavioral test directories
     for category in haptic-feedback trackpad-input; do
         if [[ -d "$ZMK_SRC_DIR/tests/$category" ]]; then
@@ -157,27 +157,27 @@ run_behavioral_tests() {
             done < <(find "$ZMK_SRC_DIR/tests/$category" -name "native_posix_64.keymap" -print0)
         fi
     done
-    
+
     if [[ ${#test_dirs[@]} -eq 0 ]]; then
         log_warning "No behavioral tests found"
         return 0
     fi
-    
+
     log_info "Found ${#test_dirs[@]} behavioral test cases"
-    
+
     # Run tests in parallel
     local failed_tests=0
     for testdir in "${test_dirs[@]}"; do
         local test_name=$(echo "$testdir" | sed "s|$ZMK_SRC_DIR/tests/||")
-        
+
         log_info "Running behavioral test: $test_name"
-        
+
         if [[ "$VERBOSE" == "1" ]]; then
             "$ZMK_ROOT/app/run-test.sh" "$testdir"
         else
             "$ZMK_ROOT/app/run-test.sh" "$testdir" >/dev/null 2>&1
         fi
-        
+
         if [[ $? -eq 0 ]]; then
             log_success "$test_name"
             echo "PASS: $test_name" >> "$TEST_RESULTS_DIR/pass-fail.log"
@@ -187,14 +187,14 @@ run_behavioral_tests() {
             ((failed_tests++))
         fi
     done
-    
+
     return $failed_tests
 }
 
 # Run integration tests (combination of drivers + behaviors)
 run_integration_tests() {
     log_info "Running integration tests..."
-    
+
     # Integration tests verify that multiple systems work together
     local integration_scenarios=(
         "haptic-trackpad-interaction"
@@ -202,18 +202,18 @@ run_integration_tests() {
         "trackpad-display-update"
         "full-system-integration"
     )
-    
+
     local failed_tests=0
-    
+
     for scenario in "${integration_scenarios[@]}"; do
         log_info "Running integration scenario: $scenario"
-        
+
         # In a full implementation, these would be separate test suites
         # For now, we simulate the test execution
-        
+
         # Simulate test execution time
         sleep 0.5
-        
+
         # Mock test result (90% pass rate for demonstration)
         if [[ $((RANDOM % 10)) -lt 9 ]]; then
             log_success "$scenario"
@@ -224,16 +224,16 @@ run_integration_tests() {
             ((failed_tests++))
         fi
     done
-    
+
     return $failed_tests
 }
 
 # Run performance benchmarks
 run_performance_tests() {
     log_info "Running performance benchmarks..."
-    
+
     local benchmark_results="$TEST_RESULTS_DIR/performance.json"
-    
+
     # Create performance benchmark results
     cat > "$benchmark_results" << EOF
 {
@@ -258,26 +258,26 @@ run_performance_tests() {
     }
 }
 EOF
-    
+
     log_success "Performance benchmarks completed"
     log_info "Results saved to: $benchmark_results"
-    
+
     return 0
 }
 
 # Generate code coverage report
 generate_coverage_report() {
     log_info "Generating code coverage report..."
-    
+
     local coverage_dir="$TEST_RESULTS_DIR/coverage"
     mkdir -p "$coverage_dir"
-    
+
     # In a full implementation, this would:
     # 1. Build tests with coverage flags (-fprofile-arcs -ftest-coverage)
     # 2. Run all tests
     # 3. Collect coverage data using gcov/lcov
     # 4. Generate HTML coverage report
-    
+
     # Mock coverage data
     cat > "$coverage_dir/summary.txt" << EOF
 Code Coverage Summary
@@ -298,7 +298,7 @@ Lines: 2,847 / 3,261 (87.3%)
 Functions: 156 / 172 (90.7%)
 Branches: 421 / 503 (83.7%)
 EOF
-    
+
     log_success "Coverage report generated: $coverage_dir/summary.txt"
     return 0
 }
@@ -306,12 +306,12 @@ EOF
 # Generate final test report
 generate_test_report() {
     log_info "Generating test report..."
-    
+
     local report_file="$TEST_RESULTS_DIR/report.html"
     local pass_count=$(grep -c "^PASS:" "$TEST_RESULTS_DIR/pass-fail.log" || echo "0")
     local fail_count=$(grep -c "^FAIL:" "$TEST_RESULTS_DIR/pass-fail.log" || echo "0")
     local total_count=$((pass_count + fail_count))
-    
+
     cat > "$report_file" << EOF
 <!DOCTYPE html>
 <html>
@@ -334,7 +334,7 @@ generate_test_report() {
         <p>Generated: $(date)</p>
         <p>Build Directory: $ZMK_BUILD_DIR</p>
     </div>
-    
+
     <div class="summary">
         <h2>Test Summary</h2>
         <p><strong>Total Tests:</strong> $total_count</p>
@@ -342,7 +342,7 @@ generate_test_report() {
         <p><strong class="fail">Failed:</strong> $fail_count</p>
         <p><strong>Success Rate:</strong> $(( total_count > 0 ? (pass_count * 100 / total_count) : 0 ))%</p>
     </div>
-    
+
     <h2>Test Results</h2>
     <table>
         <tr>
@@ -350,7 +350,7 @@ generate_test_report() {
             <th>Status</th>
         </tr>
 EOF
-    
+
     # Add test results to HTML table
     while IFS= read -r line; do
         if [[ $line =~ ^PASS:\ (.+)$ ]]; then
@@ -359,20 +359,20 @@ EOF
             echo "        <tr><td>${BASH_REMATCH[1]}</td><td class=\"fail\">FAIL</td></tr>" >> "$report_file"
         fi
     done < "$TEST_RESULTS_DIR/pass-fail.log"
-    
+
     cat >> "$report_file" << EOF
     </table>
-    
+
     <h2>Performance Benchmarks</h2>
     <p>See <a href="performance.json">performance.json</a> for detailed metrics.</p>
-    
+
     <h2>Code Coverage</h2>
     <p>See <a href="coverage/summary.txt">coverage report</a> for detailed coverage information.</p>
-    
+
 </body>
 </html>
 EOF
-    
+
     log_success "Test report generated: $report_file"
 }
 
@@ -384,7 +384,7 @@ main() {
     local behavioral_only=0
     local performance=0
     local coverage=0
-    
+
     # Parse command line arguments
     while [[ $# -gt 0 ]]; do
         case $1 in
@@ -437,18 +437,18 @@ main() {
         esac
         shift
     done
-    
+
     # Clean build directory if requested
     if [[ $clean_build -eq 1 ]]; then
         log_info "Cleaning build directory..."
         rm -rf "$ZMK_BUILD_DIR"
     fi
-    
+
     # Initialize test environment
     init_test_env
-    
+
     local total_failures=0
-    
+
     # Run requested test categories
     case $test_category in
         all)
@@ -482,25 +482,25 @@ main() {
             fi
             ;;
     esac
-    
+
     # Generate performance benchmarks if requested
     if [[ $performance -eq 1 ]] || [[ $test_category == "all" ]]; then
         run_performance_tests || ((total_failures++))
     fi
-    
+
     # Generate coverage report if requested
     if [[ $coverage -eq 1 ]]; then
         generate_coverage_report || ((total_failures++))
     fi
-    
+
     # Generate final test report
     generate_test_report
-    
+
     # Print summary
     echo
     log_info "Test execution completed"
     log_info "Results directory: $TEST_RESULTS_DIR"
-    
+
     if [[ $total_failures -eq 0 ]]; then
         log_success "All tests passed!"
         exit 0

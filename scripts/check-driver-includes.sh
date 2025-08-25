@@ -5,29 +5,29 @@ set -e
 
 check_driver_file() {
     local file="$1"
-    
+
     echo "Checking driver file: $file"
-    
+
     # Check for proper SPDX license header
     if ! head -5 "$file" | grep -q "SPDX-License-Identifier:"; then
         echo "Error: Missing SPDX license identifier in $file"
         return 1
     fi
-    
+
     # Check for DT_DRV_COMPAT definition in driver .c files
     if [[ "$file" == *.c ]] && [[ "$file" =~ drivers/ ]]; then
         if ! grep -q "DT_DRV_COMPAT" "$file"; then
             echo "Warning: Driver $file may be missing DT_DRV_COMPAT definition"
         fi
     fi
-    
+
     # Check for LOG_MODULE_REGISTER in driver files
     if [[ "$file" == *.c ]] && [[ "$file" =~ drivers/ ]]; then
         if ! grep -q "LOG_MODULE_REGISTER" "$file"; then
             echo "Warning: Driver $file may be missing LOG_MODULE_REGISTER"
         fi
     fi
-    
+
     # Check for proper include ordering (Zephyr convention)
     if [[ "$file" == *.c ]]; then
         # System includes should come before local includes
@@ -42,7 +42,7 @@ check_driver_file() {
             fi
         done < "$file"
     fi
-    
+
     echo "✓ $file checked"
     return 0
 }
