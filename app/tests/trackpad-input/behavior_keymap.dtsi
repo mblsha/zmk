@@ -14,7 +14,7 @@
     };
 
     /* Mock SPI bus for BlackBerry trackpad */
-    test_spi: test_spi {
+    test_spi: test_spi@2000 {
         compatible = "zephyr,spi-emul-controller";
         reg = <0x2000 0x100>;
         clock-frequency = <1000000>;
