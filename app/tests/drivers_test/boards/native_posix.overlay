@@ -13,7 +13,7 @@
     /* I2C emulator controller (Zephyr 3.5 binding requires `reg`) */
     i2c_emul0: i2c@0 {
         compatible = "zephyr,i2c-emul-controller";
-        reg = <0x0>;
+        reg = <0x0 0x0>;  /* address + size to match root's #address-cells=1, #size-cells=1 */
         #address-cells = <1>;
         #size-cells = <0>;
         status = "okay";
@@ -28,7 +28,7 @@
     /* SPI emulator controller (mirror the pattern) */
     spi_emul0: spi@0 {
         compatible = "zephyr,spi-emul-controller";
-        reg = <0x0>;
+        reg = <0x0 0x0>;  /* address + size to match root's #address-cells=1, #size-cells=1 */
         #address-cells = <1>;
         #size-cells = <0>;
         status = "okay";
