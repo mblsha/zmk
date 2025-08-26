@@ -9,6 +9,18 @@ set -e
 ZMK_ROOT="${ZMK_ROOT:-$(pwd)}"
 ZMK_BUILD_DIR="${ZMK_BUILD_DIR:-${ZMK_ROOT}/build-test}"
 TEST_RESULTS_DIR="${ZMK_BUILD_DIR}/test-results"
+
+# Auto-detect if we're running from app/tests directory
+if [[ "$(basename "$(pwd)")" == "tests" && -d "drivers_test" ]]; then
+    # Running from app/tests - use current directory as test root
+    ZMK_TESTS_ROOT="$(pwd)"
+elif [[ -d "app/tests/drivers_test" ]]; then
+    # Running from zmk root - use app/tests 
+    ZMK_TESTS_ROOT="$(pwd)/app/tests"
+else
+    # Default to ZMK_ROOT/app/tests
+    ZMK_TESTS_ROOT="${ZMK_ROOT}/app/tests"
+fi
 VERBOSE="${ZMK_TESTS_VERBOSE:-0}"
 AUTO_ACCEPT="${ZMK_TESTS_AUTO_ACCEPT:-0}"
 PARALLEL_JOBS="${J:-4}"
@@ -96,7 +108,7 @@ init_test_env() {
     echo "" > "$TEST_RESULTS_DIR/pass-fail.log"
 
     # Set up environment variables for tests
-    export ZMK_SRC_DIR="$ZMK_ROOT/app"
+    export ZMK_SRC_DIR="$ZMK_TESTS_ROOT"
     export ZMK_BUILD_DIR="$ZMK_BUILD_DIR"
     export ZMK_TESTS_VERBOSE="$VERBOSE"
     export ZMK_TESTS_AUTO_ACCEPT="$AUTO_ACCEPT"
@@ -112,9 +124,9 @@ run_driver_tests() {
     # Build the test
     log_info "Building $test_name..."
     if [[ "$VERBOSE" == "1" ]]; then
-        west build -s "$ZMK_SRC_DIR/tests/drivers_test" -d "$build_dir" -b native_posix -p -- -DCONFIG_ASSERT=y
+        west build -s "$ZMK_SRC_DIR/drivers_test" -d "$build_dir" -b native_posix -p -- -DCONFIG_ASSERT=y
     else
-        west build -s "$ZMK_SRC_DIR/tests/drivers_test" -d "$build_dir" -b native_posix -p -- -DCONFIG_ASSERT=y >/dev/null 2>&1
+        west build -s "$ZMK_SRC_DIR/drivers_test" -d "$build_dir" -b native_posix -p -- -DCONFIG_ASSERT=y >/dev/null 2>&1
     fi
 
     if [[ $? -ne 0 ]]; then
@@ -150,11 +162,11 @@ run_behavioral_tests() {
 
     # Find all behavioral test directories
     for category in haptic-feedback trackpad-input; do
-        if [[ -d "$ZMK_SRC_DIR/tests/$category" ]]; then
+        if [[ -d "$ZMK_SRC_DIR/$category" ]]; then
             # Find all test cases (directories with native_posix_64.keymap)
             while IFS= read -r -d '' testcase; do
                 test_dirs+=("$(dirname "$testcase")")
-            done < <(find "$ZMK_SRC_DIR/tests/$category" -name "native_posix_64.keymap" -print0)
+            done < <(find "$ZMK_SRC_DIR/$category" -name "native_posix_64.keymap" -print0)
         fi
     done
 
@@ -168,7 +180,7 @@ run_behavioral_tests() {
     # Run tests in parallel
     local failed_tests=0
     for testdir in "${test_dirs[@]}"; do
-        local test_name=$(echo "$testdir" | sed "s|$ZMK_SRC_DIR/tests/||")
+        local test_name=$(echo "$testdir" | sed "s|$ZMK_SRC_DIR/||")
 
         log_info "Running behavioral test: $test_name"
 
@@ -475,7 +487,7 @@ main() {
         specific)
             if [[ -n "$specific_test" ]]; then
                 log_info "Running specific test: $specific_test"
-                "$ZMK_ROOT/app/run-test.sh" "$ZMK_SRC_DIR/tests/$specific_test" || ((total_failures++))
+                "$ZMK_ROOT/app/run-test.sh" "$ZMK_SRC_DIR/$specific_test" || ((total_failures++))
             else
                 log_error "No specific test provided"
                 exit 1
