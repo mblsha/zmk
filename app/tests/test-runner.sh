@@ -199,10 +199,22 @@ run_behavioral_tests() {
 
         log_info "Running behavioral test: $test_name"
 
-        if [[ "$VERBOSE" == "1" ]]; then
-            "$ZMK_ROOT/app/run-test.sh" "$testdir"
+        # Determine correct run-test.sh location
+        local run_test_script
+        if [[ -f "$ZMK_TESTS_ROOT/../run-test.sh" ]]; then
+            run_test_script="$ZMK_TESTS_ROOT/../run-test.sh"
+        elif [[ -f "$ZMK_ROOT/app/run-test.sh" ]]; then
+            run_test_script="$ZMK_ROOT/app/run-test.sh"
         else
-            "$ZMK_ROOT/app/run-test.sh" "$testdir" >/dev/null 2>&1
+            log_error "run-test.sh not found"
+            ((failed_tests++))
+            continue
+        fi
+        
+        if [[ "$VERBOSE" == "1" ]]; then
+            "$run_test_script" "$testdir"
+        else
+            "$run_test_script" "$testdir" >/dev/null 2>&1
         fi
 
         if [[ $? -eq 0 ]]; then
