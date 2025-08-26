@@ -71,7 +71,7 @@ jobs:
           echo "===== zephyr.dts (tail) ====="
           tail -n 200 build-test/zephyr/zephyr.dts || true
           echo "===== emulator nodes ====="
-          grep -n "drv2605@5a\|bb_trackpad@0\|i2c@0\|spi@0" build-test/zephyr/zephyr.dts || true
+          grep -n "i2c@0\|spi@0\|drv2605@5a\|bb_trackpad@0" build-test/zephyr/zephyr.dts || true
           echo "===== checking emulator nodes are okay ====="
           grep -q 'compatible = "ti,drv2605"' build-test/zephyr/zephyr.dts || \
             (echo "::error ::DRV2605 node missing in DTS"; exit 1)
@@ -329,7 +329,7 @@ jobs:
           # Create filtered compile database for drivers and tests only
           jq '[.[] | select(.file | test("app/drivers|app/tests/drivers_test"))]' \
             build-quality/compile_commands.json > drivers_compile_commands.json
-            
+
           echo "Filtered compile commands: $(jq length drivers_compile_commands.json)"
 
           # Only run cppcheck if we have files to analyze
