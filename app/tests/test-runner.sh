@@ -108,6 +108,8 @@ init_test_env() {
     echo "" > "$TEST_RESULTS_DIR/pass-fail.log"
 
     # Set up environment variables for tests
+    # For driver tests, ZMK_SRC_DIR points to the driver test source
+    # For behavioral tests, we override ZMK_SRC_DIR when calling run-test.sh
     export ZMK_SRC_DIR="$ZMK_TESTS_ROOT"
     export ZMK_BUILD_DIR="$ZMK_BUILD_DIR"
     export ZMK_TESTS_VERBOSE="$VERBOSE"
@@ -177,11 +179,11 @@ run_behavioral_tests() {
 
     # Find all behavioral test directories
     for category in haptic-feedback trackpad-input; do
-        if [[ -d "$ZMK_SRC_DIR/$category" ]]; then
+        if [[ -d "$ZMK_TESTS_ROOT/$category" ]]; then
             # Find all test cases (directories with native_posix_64.keymap)
             while IFS= read -r -d '' testcase; do
                 test_dirs+=("$(dirname "$testcase")")
-            done < <(find "$ZMK_SRC_DIR/$category" -name "native_posix_64.keymap" -print0)
+            done < <(find "$ZMK_TESTS_ROOT/$category" -name "native_posix_64.keymap" -print0)
         fi
     done
 
@@ -195,7 +197,7 @@ run_behavioral_tests() {
     # Run tests in parallel
     local failed_tests=0
     for testdir in "${test_dirs[@]}"; do
-        local test_name=$(echo "$testdir" | sed "s|$ZMK_SRC_DIR/||")
+        local test_name=$(echo "$testdir" | sed "s|$ZMK_TESTS_ROOT/||")
 
         log_info "Running behavioral test: $test_name"
 
@@ -211,10 +213,11 @@ run_behavioral_tests() {
             continue
         fi
         
+        # Set correct environment for behavioral tests - ZMK_SRC_DIR should point to main app
         if [[ "$VERBOSE" == "1" ]]; then
-            "$run_test_script" "$testdir"
+            ZMK_SRC_DIR="$ZMK_TESTS_ROOT/../" "$run_test_script" "$testdir"
         else
-            "$run_test_script" "$testdir" >/dev/null 2>&1
+            ZMK_SRC_DIR="$ZMK_TESTS_ROOT/../" "$run_test_script" "$testdir" >/dev/null 2>&1
         fi
 
         if [[ $? -eq 0 ]]; then
