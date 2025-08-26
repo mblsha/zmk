@@ -9,12 +9,14 @@
         i2c-0 = &i2c_emul0;
         spi-0 = &spi_emul0;
     };
+};
 
-    /* I2C emulator controller (Zephyr 3.5 binding requires `reg`) */
-    i2c_emul0: i2c@0 {
-        compatible = "zephyr,i2c-emul-controller";
-        reg = <0x0 0x1>;  /* address=0x0, size=0x1 (non-zero size required by validator) */
-        clock-frequency = <100000>;  /* Standard I2C frequency (100kHz) */
+/* Put controllers under /soc so their parent is a simple-bus with declared ranges */
+&soc {
+    /* Adjust addresses to any free-ish range; size can be a small MMIO window */
+    i2c_emul0: i2c@40003000 {
+        compatible = "zephyr,i2c-emul";
+        reg = <0x40003000 0x1000>;
         #address-cells = <1>;
         #size-cells = <0>;
         status = "okay";
@@ -26,17 +28,16 @@
         };
     };
 
-    /* SPI emulator controller (mirror the pattern) */
-    spi_emul0: spi@0 {
-        compatible = "zephyr,spi-emul-controller";
-        reg = <0x0 0x1>;  /* address=0x0, size=0x1 (non-zero size required by validator) */
+    spi_emul0: spi@40004000 {
+        compatible = "zephyr,spi-emul";
+        reg = <0x40004000 0x1000>;
         #address-cells = <1>;
         #size-cells = <0>;
         status = "okay";
 
         bb_trackpad_emul: bb_trackpad@0 {
             compatible = "blackberry,trackpad";
-            reg = <0x0>;
+            reg = <0>;
             status = "okay";
         };
     };
