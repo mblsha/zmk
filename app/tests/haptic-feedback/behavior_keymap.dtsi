@@ -36,37 +36,13 @@
         status = "okay";
     };
 
-    /* Custom haptic behaviors */
-    behaviors {
-        hp_click: haptic_click {
-            compatible = "zmk,behavior-haptic";
-            label = "HAPTIC_CLICK";
-            #binding-cells = <0>;
-            waveform = <12>;  /* Strong click */
-        };
-
-        hp_tick: haptic_tick {
-            compatible = "zmk,behavior-haptic";
-            label = "HAPTIC_TICK";
-            #binding-cells = <0>;
-            waveform = <2>;   /* Tick */
-        };
-
-        hp_seq: haptic_sequence {
-            compatible = "zmk,behavior-haptic-sequence";
-            label = "HAPTIC_SEQUENCE";
-            #binding-cells = <0>;
-            sequence = <1 2 3>;  /* Click, tick, slow rise */
-        };
-    };
-
     keymap {
         compatible = "zmk,keymap";
 
         default_layer {
             bindings = <
-                &hp_click &hp_tick
-                &hp_seq   &kp A
+                &kp A &kp B
+                &kp C &kp D
             >;
         };
     };

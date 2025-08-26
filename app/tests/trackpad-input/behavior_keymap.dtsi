@@ -96,8 +96,8 @@
         /* Mouse layer activated by trackpad movement */
         mouse_layer {
             bindings = <
-                &mwh SCROLL_UP   &mwh SCROLL_DOWN
-                &mkp LCLK        &mkp RCLK
+                &kp K_SCROLL_UP   &kp K_SCROLL_DOWN
+                &mkp LCLK         &mkp RCLK
             >;
         };
     };

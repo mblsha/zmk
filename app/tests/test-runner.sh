@@ -15,7 +15,7 @@ if [[ "$(basename "$(pwd)")" == "tests" && -d "drivers_test" ]]; then
     # Running from app/tests - use current directory as test root
     ZMK_TESTS_ROOT="$(pwd)"
 elif [[ -d "app/tests/drivers_test" ]]; then
-    # Running from zmk root - use app/tests 
+    # Running from zmk root - use app/tests
     ZMK_TESTS_ROOT="$(pwd)/app/tests"
 else
     # Default to ZMK_ROOT/app/tests
@@ -138,7 +138,7 @@ run_driver_tests() {
 
     # Run the test
     log_info "Executing $test_name..."
-    
+
     # Determine the correct executable name based on target platform
     local test_executable="$build_dir/zephyr/zephyr.elf"
     if [[ ! -f "$test_executable" ]]; then
@@ -152,7 +152,7 @@ run_driver_tests() {
             return 1
         fi
     fi
-    
+
     if [[ "$VERBOSE" == "1" ]]; then
         "$test_executable"
     else
@@ -212,7 +212,7 @@ run_behavioral_tests() {
             ((failed_tests++))
             continue
         fi
-        
+
         # Set correct environment for behavioral tests - ZMK_SRC_DIR should point to main app
         if [[ "$VERBOSE" == "1" ]]; then
             ZMK_SRC_DIR="$ZMK_TESTS_ROOT/../" "$run_test_script" "$testdir"
