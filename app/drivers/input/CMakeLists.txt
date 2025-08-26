@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
-zephyr_library()
-
-zephyr_library_sources_ifdef(CONFIG_BLACKBERRY_TRACKPAD blackberry_trackpad.c)
+# Only create the library if we have sources to add
+if(CONFIG_BLACKBERRY_TRACKPAD)
+  zephyr_library()
+  zephyr_library_sources(blackberry_trackpad.c)
+endif()
