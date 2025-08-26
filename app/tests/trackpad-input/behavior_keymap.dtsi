@@ -2,6 +2,10 @@
 #include <behaviors.dtsi>
 #include <dt-bindings/zmk/kscan_mock.h>
 
+/* Force RC back to the 2-arg row/col variant for matrix transforms */
+#undef RC
+#include <dt-bindings/zmk/matrix_transform.h>
+
 / {
     chosen {
         zmk,kscan = &kscan0;
@@ -19,7 +23,7 @@
             compatible = "blackberry,trackpad";
             reg = <0>;
             spi-max-frequency = <1000000>;
-            irq-gpios = <&gpio0 7 GPIO_ACTIVE_LOW>;
+            irq-gpios = <&test_gpio 7 GPIO_ACTIVE_LOW>;
             scale-x = <2>;
             scale-y = <2>;
             invert-x;
@@ -27,12 +31,13 @@
         };
     };
 
-    gpio0: gpio@300 {
+    test_gpio: gpio@300 {
         compatible = "zephyr,gpio-emul";
         reg = <0x300 4>;
         gpio-controller;
         #gpio-cells = <2>;
         ngpios = <32>;
+        status = "okay";
     };
 
     default_transform: keymap_transform_0 {

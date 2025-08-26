@@ -17,7 +17,7 @@
         haptic_drv: haptic@5a {
             compatible = "ti,drv2605";
             reg = <0x5a>;
-            enable-gpios = <&gpio0 6 GPIO_ACTIVE_HIGH>;
+            enable-gpios = <&test_gpio 6 GPIO_ACTIVE_HIGH>;
             library = <6>;  /* LRA library */
             actuator-type = <1>;  /* LRA */
             rated-voltage = <2000>;  /* 2V */
@@ -26,12 +26,13 @@
         };
     };
 
-    gpio0: gpio@300 {
+    test_gpio: gpio@300 {
         compatible = "zephyr,gpio-emul";
         reg = <0x300 4>;
         gpio-controller;
         #gpio-cells = <2>;
         ngpios = <32>;
+        status = "okay";
     };
 
     /* Custom haptic behaviors */
