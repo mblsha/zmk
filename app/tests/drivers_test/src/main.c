@@ -21,4 +21,4 @@ BUILD_ASSERT(DT_NODE_HAS_STATUS(DT_NODELABEL(bb_trackpad_emul), okay),
              "bb_trackpad_emul missing: check overlay compatible/version");
 #endif
 
-ZTEST_SUITE(driver_tests, NULL, NULL, NULL, NULL, NULL);
+/* No test suite here; suites are defined in other source files */
