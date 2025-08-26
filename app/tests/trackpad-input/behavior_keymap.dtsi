@@ -1,6 +1,7 @@
 #include <dt-bindings/zmk/keys.h>
 #include <behaviors.dtsi>
 #include <dt-bindings/zmk/kscan_mock.h>
+#include <dt-bindings/zmk/pointing.h>
 
 /* Force RC back to the 2-arg row/col variant for matrix transforms */
 #undef RC
@@ -15,6 +16,7 @@
     /* Mock SPI bus for BlackBerry trackpad */
     test_spi: test_spi {
         compatible = "zephyr,spi-emul-controller";
+        reg = <0x2000 0x100>;
         clock-frequency = <1000000>;
         #address-cells = <1>;
         #size-cells = <0>;
