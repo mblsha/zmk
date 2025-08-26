@@ -315,23 +315,23 @@ jobs:
         run: |
           set -euxo pipefail
           cd "$GITHUB_WORKSPACE"
-          
+
           # Debug: check if compile database exists and has content
           if [ ! -f "build-quality/compile_commands.json" ]; then
             echo "ERROR: build-quality/compile_commands.json not found"
             exit 1
           fi
-          
+
           echo "Total compile commands: $(jq length build-quality/compile_commands.json)"
           echo "Sample file paths:"
           jq -r '.[0:3][].file // "none"' build-quality/compile_commands.json || true
-          
+
           # Create filtered compile database for drivers and tests only
           jq '[.[] | select(.file | test("app/drivers|app/tests/drivers_test"))]' \
             build-quality/compile_commands.json > drivers_compile_commands.json
             
           echo "Filtered compile commands: $(jq length drivers_compile_commands.json)"
-          
+
           # Only run cppcheck if we have files to analyze
           if [ "$(jq length drivers_compile_commands.json)" -gt 0 ]; then
             # Run cppcheck with filtered compile database and parallel processing
