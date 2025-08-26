@@ -136,10 +136,25 @@ run_driver_tests() {
 
     # Run the test
     log_info "Executing $test_name..."
+    
+    # Determine the correct executable name based on target platform
+    local test_executable="$build_dir/zephyr/zephyr.elf"
+    if [[ ! -f "$test_executable" ]]; then
+        # Fallback to other possible names
+        if [[ -f "$build_dir/zephyr/zmk.exe" ]]; then
+            test_executable="$build_dir/zephyr/zmk.exe"
+        elif [[ -f "$build_dir/zephyr/zephyr.exe" ]]; then
+            test_executable="$build_dir/zephyr/zephyr.exe"
+        else
+            log_error "Test executable not found in $build_dir/zephyr/"
+            return 1
+        fi
+    fi
+    
     if [[ "$VERBOSE" == "1" ]]; then
-        "$build_dir/zephyr/zmk.exe"
+        "$test_executable"
     else
-        "$build_dir/zephyr/zmk.exe" >/dev/null 2>&1
+        "$test_executable" >/dev/null 2>&1
     fi
 
     local result=$?
