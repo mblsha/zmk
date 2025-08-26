@@ -11,12 +11,11 @@
     };
 
     /* I2C emulator bus: accept both new and legacy compatibles */
-    i2c_emul0: i2c@0 {
+    i2c_emul0: i2c_emul {
         /* First tries new; falls back to legacy if new is absent */
         compatible = "zephyr,i2c-emul-controller", "zephyr,i2c-emul";
         #address-cells = <1>;
         #size-cells = <0>;
-        reg = <0>;
         status = "okay";
 
         drv2605_emul: drv2605@5a {
@@ -27,11 +26,10 @@
     };
 
     /* SPI emulator bus: new then legacy */
-    spi_emul0: spi@0 {
+    spi_emul0: spi_emul {
         compatible = "zephyr,spi-emul-controller", "zephyr,spi-emul";
         #address-cells = <1>;
         #size-cells = <0>;
-        reg = <0>;
         status = "okay";
 
         bb_trackpad_emul: bb_trackpad@0 {
