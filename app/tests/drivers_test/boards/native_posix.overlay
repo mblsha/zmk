@@ -9,11 +9,8 @@
         i2c-0 = &i2c_emul0;
         spi-0 = &spi_emul0;
     };
-};
 
-/* Put controllers under /soc so their parent is a simple-bus with declared ranges */
-&soc {
-    /* Adjust addresses to any free-ish range; size can be a small MMIO window */
+    /* I2C emulator - use legacy compatible and safe address */
     i2c_emul0: i2c@40003000 {
         compatible = "zephyr,i2c-emul";
         reg = <0x40003000 0x1000>;
@@ -28,6 +25,7 @@
         };
     };
 
+    /* SPI emulator - use legacy compatible and safe address */
     spi_emul0: spi@40004000 {
         compatible = "zephyr,spi-emul";
         reg = <0x40004000 0x1000>;
