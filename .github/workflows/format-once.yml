@@ -24,14 +24,19 @@ jobs:
           python -m pip install --upgrade pip
           pip install "pre-commit==4.3.0"
 
-      - name: Run clang-format via pre-commit on targeted files
+      - name: Run clang-format directly to modify files
         run: |
-          # Install pre-commit hooks to get the formatting tools
-          pre-commit install --install-hooks
-          # Run clang-format on specific files (will auto-fix)
-          pre-commit run clang-format --files \
-            app/tests/drivers_test/src/main.c \
-            app/tests/drivers_test/src/test_minimal.c || true
+          # Install clang-format to match CI version
+          apt-get update && apt-get install -y clang-format || true
+          clang-format --version || true
+          
+          # Run clang-format directly in fix mode (not check mode)
+          # This will actually modify files unlike pre-commit check mode
+          git ls-files '*.c' '*.h' | xargs -P 4 -n 50 clang-format -i --style=file --fallback-style=none || true
+          
+          # Show what changed
+          git diff --name-only || true
+          git diff || true
 
       - name: Commit and push if changes
         run: |
