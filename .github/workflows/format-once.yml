@@ -26,6 +26,9 @@ jobs:
 
       - name: Run clang-format via pre-commit on targeted files
         run: |
+          # Install pre-commit hooks to get the formatting tools
+          pre-commit install --install-hooks
+          # Run clang-format on specific files (will auto-fix)
           pre-commit run clang-format --files \
             app/tests/drivers_test/src/main.c \
             app/tests/drivers_test/src/test_minimal.c || true
