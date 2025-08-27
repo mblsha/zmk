@@ -91,19 +91,22 @@ int drv2605_play_waveform(const struct device *dev, uint8_t waveform_id);
 int drv2605_play_sequence(const struct device *dev, const uint8_t *sequence, size_t len);
 int drv2605_stop(const struct device *dev);
 
-static int drv2605_reg_read(const struct device *dev, uint8_t reg, uint8_t *val) {
+static int drv2605_reg_read(const struct device *dev, uint8_t reg, uint8_t *val)
+{
     const struct drv2605_config *config = dev->config;
 
     return i2c_reg_read_byte_dt(&config->i2c, reg, val);
 }
 
-static int drv2605_reg_write(const struct device *dev, uint8_t reg, uint8_t val) {
+static int drv2605_reg_write(const struct device *dev, uint8_t reg, uint8_t val)
+{
     const struct drv2605_config *config = dev->config;
 
     return i2c_reg_write_byte_dt(&config->i2c, reg, val);
 }
 
-static int drv2605_enable(const struct device *dev, bool enable) {
+static int drv2605_enable(const struct device *dev, bool enable)
+{
     const struct drv2605_config *config = dev->config;
     struct drv2605_data *data = dev->data;
     int ret = 0;
@@ -140,7 +143,8 @@ static int drv2605_enable(const struct device *dev, bool enable) {
     return ret;
 }
 
-int drv2605_play_waveform(const struct device *dev, uint8_t waveform_id) {
+int drv2605_play_waveform(const struct device *dev, uint8_t waveform_id)
+{
     struct drv2605_data *data = dev->data;
     int ret;
 
@@ -171,7 +175,8 @@ exit:
     return ret;
 }
 
-int drv2605_play_sequence(const struct device *dev, const uint8_t *sequence, size_t len) {
+int drv2605_play_sequence(const struct device *dev, const uint8_t *sequence, size_t len)
+{
     struct drv2605_data *data = dev->data;
     int ret = 0;
     size_t i;
@@ -205,7 +210,8 @@ exit:
     return ret;
 }
 
-int drv2605_stop(const struct device *dev) {
+int drv2605_stop(const struct device *dev)
+{
     struct drv2605_data *data = dev->data;
 
     if (!data->enabled) {
@@ -219,7 +225,8 @@ int drv2605_stop(const struct device *dev) {
     return ret;
 }
 
-static int drv2605_auto_calibrate(const struct device *dev) {
+static int drv2605_auto_calibrate(const struct device *dev)
+{
     uint8_t status;
     int ret;
     int timeout = 1000; /* 1 second timeout */
@@ -268,7 +275,8 @@ static int drv2605_auto_calibrate(const struct device *dev) {
     return 0;
 }
 
-static int drv2605_init(const struct device *dev) {
+static int drv2605_init(const struct device *dev)
+{
     if (!dev || !dev->data || !dev->config) {
         return -EINVAL; /* satisfies cppcheck without affecting behavior */
     }
@@ -377,7 +385,8 @@ static int drv2605_init(const struct device *dev) {
 }
 
 #ifdef CONFIG_PM_DEVICE
-static int drv2605_pm_action(const struct device *dev, enum pm_device_action action) {
+static int drv2605_pm_action(const struct device *dev, enum pm_device_action action)
+{
     switch (action) {
     case PM_DEVICE_ACTION_SUSPEND:
         return drv2605_enable(dev, false);

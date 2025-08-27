@@ -47,14 +47,16 @@ static struct input_event last_input_event;
 static bool input_event_received = false;
 
 /* Input event callback for testing */
-static void test_input_callback(struct input_event *evt) {
+static void test_input_callback(struct input_event *evt)
+{
     last_input_event = *evt;
     input_event_received = true;
     LOG_DBG("Input event: type=%d code=%d value=%d", evt->type, evt->code, evt->value);
 }
 
 /* Helper to reset mock state */
-static void reset_mock_state(void) {
+static void reset_mock_state(void)
+{
     mock_response_index = 0;
     input_event_received = false;
     memset(&last_input_event, 0, sizeof(last_input_event));
