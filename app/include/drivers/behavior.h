@@ -122,9 +122,7 @@ struct zmk_behavior_local_id_map {
 #if IS_ENABLED(CONFIG_ZMK_BEHAVIOR_METADATA)
 
 #define ZMK_BEHAVIOR_METADATA_INITIALIZER(node_id)                                                 \
-    {                                                                                              \
-        .display_name = DT_PROP_OR(node_id, display_name, DEVICE_DT_NAME(node_id)),                \
-    }
+    { .display_name = DT_PROP_OR(node_id, display_name, DEVICE_DT_NAME(node_id)), }
 
 #else
 
@@ -134,15 +132,10 @@ struct zmk_behavior_local_id_map {
 #endif // IS_ENABLED(CONFIG_ZMK_BEHAVIOR_METADATA)
 
 #define ZMK_BEHAVIOR_REF_INITIALIZER(node_id, _dev)                                                \
-    {                                                                                              \
-        .device = _dev,                                                                            \
-        .metadata = ZMK_BEHAVIOR_METADATA_INITIALIZER(node_id),                                    \
-    }
+    { .device = _dev, .metadata = ZMK_BEHAVIOR_METADATA_INITIALIZER(node_id), }
 
 #define ZMK_BEHAVIOR_LOCAL_ID_MAP_INITIALIZER(node_id, _dev)                                       \
-    {                                                                                              \
-        .device = _dev,                                                                            \
-    }
+    { .device = _dev, }
 
 #define ZMK_BEHAVIOR_REF_DEFINE(name, node_id, _dev)                                               \
     static const STRUCT_SECTION_ITERABLE(zmk_behavior_ref, name) =                                 \

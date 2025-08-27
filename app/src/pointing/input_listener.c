@@ -353,10 +353,12 @@ static void input_handler(const struct input_listener_config *config,
     }
 
 #define IL_EXTRACT_DATA(n, id, scope)                                                              \
-    {COND_CODE_1(DT_NODE_HAS_PROP(n, input_processors),                                            \
-                 (.remainders_len = PROCESSOR_REM_TRACKERS(n),                                     \
-                  .remainders = _CONCAT(input_processor_remainders_##id, scope), ),                \
-                 ())}
+    {                                                                                              \
+        COND_CODE_1(DT_NODE_HAS_PROP(n, input_processors),                                         \
+                    (.remainders_len = PROCESSOR_REM_TRACKERS(n),                                  \
+                     .remainders = _CONCAT(input_processor_remainders_##id, scope), ),             \
+                    ())                                                                            \
+    }
 
 #define IL_ONE(...) +1
 
