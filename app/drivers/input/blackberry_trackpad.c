@@ -52,8 +52,7 @@ struct blackberry_trackpad_data {
     int16_t last_y;
 };
 
-static int bb_tp_spi_write_read(const struct device *dev, uint8_t cmd, uint8_t *data)
-{
+static int bb_tp_spi_write_read(const struct device *dev, uint8_t cmd, uint8_t *data) {
     const struct blackberry_trackpad_config *config = dev->config;
 
     const struct spi_buf tx_buf = {
@@ -77,8 +76,7 @@ static int bb_tp_spi_write_read(const struct device *dev, uint8_t cmd, uint8_t *
     return spi_transceive_dt(&config->spi, &tx, &rx);
 }
 
-static void bb_tp_motion_work_handler(struct k_work *work)
-{
+static void bb_tp_motion_work_handler(struct k_work *work) {
     struct blackberry_trackpad_data *data =
         CONTAINER_OF(work, struct blackberry_trackpad_data, motion_work);
     const struct blackberry_trackpad_config *config = data->dev->config;
@@ -153,8 +151,7 @@ static void bb_tp_irq_handler(const struct device *gpio_dev, struct gpio_callbac
     k_work_submit(&data->motion_work);
 }
 
-static int blackberry_trackpad_init(const struct device *dev)
-{
+static int blackberry_trackpad_init(const struct device *dev) {
     if (!dev || !dev->data || !dev->config) {
         return -EINVAL; /* satisfies cppcheck without affecting behavior */
     }

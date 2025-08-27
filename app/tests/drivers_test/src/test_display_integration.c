@@ -49,8 +49,7 @@ struct mock_display_state {
 static struct mock_display_state mock_display;
 
 /* Helper functions */
-static void reset_mock_display_state(void)
-{
+static void reset_mock_display_state(void) {
     memset(&mock_display, 0, sizeof(mock_display));
     mock_display.display_enabled = true;
     mock_display.extcomin_active = false;
@@ -58,8 +57,7 @@ static void reset_mock_display_state(void)
 }
 
 /* Helper to set a pixel in the mock framebuffer */
-static void set_mock_pixel(uint16_t x, uint16_t y, bool value)
-{
+static void set_mock_pixel(uint16_t x, uint16_t y, bool value) {
     if (x >= SHARP_LCD_WIDTH || y >= SHARP_LCD_HEIGHT) {
         return;
     }
@@ -75,8 +73,7 @@ static void set_mock_pixel(uint16_t x, uint16_t y, bool value)
 }
 
 /* Helper to get a pixel from the mock framebuffer */
-static bool get_mock_pixel(uint16_t x, uint16_t y)
-{
+static bool get_mock_pixel(uint16_t x, uint16_t y) {
     if (x >= SHARP_LCD_WIDTH || y >= SHARP_LCD_HEIGHT) {
         return false;
     }
@@ -88,8 +85,7 @@ static bool get_mock_pixel(uint16_t x, uint16_t y)
 }
 
 /* Helper to simulate display update region */
-static void simulate_display_update(uint16_t x, uint16_t y, uint16_t w, uint16_t h)
-{
+static void simulate_display_update(uint16_t x, uint16_t y, uint16_t w, uint16_t h) {
     mock_display.last_update_x = x;
     mock_display.last_update_y = y;
     mock_display.last_update_w = w;

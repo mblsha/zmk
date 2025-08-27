@@ -109,8 +109,7 @@ static struct drv2605_reg_state mock_drv2605_state;
 #define WAVEFORM_SHORT_DOUBLE_CLICK_STRONG 14
 
 /* Helper functions */
-static void reset_mock_drv2605_state(void)
-{
+static void reset_mock_drv2605_state(void) {
     memset(&mock_drv2605_state, 0, sizeof(mock_drv2605_state));
     mock_drv2605_state.status = 0x00; /* Device ready, no errors */
     mock_drv2605_state.mode = DRV2605_MODE_INTERNAL_TRIGGER;
@@ -123,8 +122,7 @@ static void reset_mock_drv2605_state(void)
 }
 
 /* Test helper to verify register values */
-static void assert_register_value(uint8_t reg, uint8_t expected, const char *description)
-{
+static void assert_register_value(uint8_t reg, uint8_t expected, const char *description) {
     uint8_t actual;
     switch (reg) {
     case DRV2605_STATUS:
