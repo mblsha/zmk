@@ -18,7 +18,9 @@ repos:
             app/src/keymap\.c|
             app/src/kscan_sideband_behaviors\.c|
             app/src/pointing/input_listener\.c|
-            app/src/sensors\.c
+            app/src/sensors\.c|
+            app/tests/trackpad-input/basic/src/main\.c|
+            app/tests/trackpad-input/scroll-gestures/src/main\.c
           )$
         args:
           - --dry-run
