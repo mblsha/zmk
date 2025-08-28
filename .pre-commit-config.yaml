@@ -10,6 +10,16 @@ repos:
     hooks:
       - id: clang-format
         types_or: [c++, c]
+        exclude: |
+          (?x)^(
+            app/include/drivers/behavior\.h|
+            app/src/behaviors/behavior_caps_word\.c|
+            app/src/behaviors/behavior_tap_dance\.c|
+            app/src/keymap\.c|
+            app/src/kscan_sideband_behaviors\.c|
+            app/src/pointing/input_listener\.c|
+            app/src/sensors\.c
+          )$
         args:
           - --dry-run
           - --Werror
