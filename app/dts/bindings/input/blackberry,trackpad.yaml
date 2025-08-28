@@ -46,3 +46,15 @@ properties:
     default: 1
     description: |
       Scale factor for Y axis movement. Higher values increase sensitivity.
+
+  scroll-threshold:
+    type: int
+    default: 3
+    description: |
+      Minimum movement threshold to trigger scroll gesture detection.
+      
+  scroll-timeout-ms:
+    type: int
+    default: 200
+    description: |
+      Timeout in milliseconds for scroll gesture recognition.

@@ -1,0 +1,71 @@
+/*
+ * Copyright (c) 2023 The ZMK Contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+#include <dt-bindings/input/input.h>
+
+/ {
+    aliases {
+        bb-trackpad = &bb_trackpad;
+    };
+
+    chosen {
+        zephyr,console = &uart0;
+        zephyr,shell-uart = &uart0;
+    };
+
+    /* Test SPI emulator bus for BlackBerry trackpad */
+    test_spi_emul: spi_emul@1000 {
+        compatible = "zephyr,spi-emul-controller";
+        reg = <0x1000 0x100>;
+        clock-frequency = <1000000>;
+        #address-cells = <1>;
+        #size-cells = <0>;
+        status = "okay";
+
+        bb_trackpad: bb_trackpad_emul@0 {
+            compatible = "blackberry,trackpad";
+            reg = <0>;
+            label = "BB_TRACKPAD";
+            spi-max-frequency = <1000000>;
+            irq-gpios = <&test_gpio 7 GPIO_ACTIVE_LOW>;
+            scale-x = <2>;
+            scale-y = <2>;
+            invert-x;
+            status = "okay";
+        };
+    };
+
+    /* Test GPIO emulator */
+    test_gpio: gpio_emul@2000 {
+        compatible = "zephyr,gpio-emul";
+        reg = <0x2000 4>;
+        gpio-controller;
+        #gpio-cells = <2>;
+        ngpios = <32>;
+        status = "okay";
+    };
+
+    /* Input processor chain for testing */
+    input_processors {
+        compatible = "zmk,input-processor-chain";
+
+        scaler: input_processor_scaler {
+            compatible = "zmk,input-processor-scaler";
+            #input-processor-cells = <0>;
+            x-multiplier = <1>;
+            y-multiplier = <1>;
+            scale-multiplier = <1>;
+        };
+
+        temp_layer: input_processor_temp_layer {
+            compatible = "zmk,input-processor-temp-layer";
+            #input-processor-cells = <0>;
+            layer = <1>;
+            timeout-ms = <2000>;
+            require-prior-idle-ms = <500>;
+        };
+    };
+};
