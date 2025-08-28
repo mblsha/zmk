@@ -41,13 +41,13 @@ static bool layer_activated = false;
 static void input_cb(struct input_event *evt, void *user_data)
 {
     LOG_DBG("Input event: type=%d code=%d value=%d", evt->type, evt->code, evt->value);
-    
+
     if (evt->type == INPUT_EV_REL) {
         if (evt->code == INPUT_REL_X) {
             last_scroll_x = evt->value;
             /* Log trackpad motion as expected by test patterns */
             LOG_INF("TRACKPAD_MOTION: %d,%d", evt->value, last_scroll_y);
-            
+
             /* Detect horizontal scroll gestures */
             if (abs(evt->value) > 15) {
                 int magnitude = abs(evt->value) / 5;  /* Scale to reasonable scroll magnitude */
@@ -59,7 +59,7 @@ static void input_cb(struct input_event *evt, void *user_data)
         } else if (evt->code == INPUT_REL_Y) {
             last_scroll_y = evt->value;
             LOG_INF("TRACKPAD_MOTION: %d,%d", last_scroll_x, evt->value);
-            
+
             /* Detect vertical scroll gestures */
             if (abs(evt->value) > 15) {
                 int magnitude = abs(evt->value) / 5;  /* Scale to reasonable scroll magnitude */
@@ -70,16 +70,16 @@ static void input_cb(struct input_event *evt, void *user_data)
             }
         } else if (evt->code == INPUT_REL_WHEEL) {
             scroll_events++;
-            LOG_INF("scroll_detected: direction=%s magnitude=%d", 
+            LOG_INF("scroll_detected: direction=%s magnitude=%d",
                     evt->value > 0 ? "up" : "down", abs(evt->value));
             k_sem_give(&scroll_sem);
         } else if (evt->code == INPUT_REL_HWHEEL) {
             scroll_events++;
-            LOG_INF("scroll_detected: direction=%s magnitude=%d", 
+            LOG_INF("scroll_detected: direction=%s magnitude=%d",
                     evt->value > 0 ? "right" : "left", abs(evt->value));
             k_sem_give(&scroll_sem);
         }
-        
+
         gesture_events++;
         k_sem_give(&gesture_sem);
     }
@@ -93,7 +93,7 @@ static int inject_scroll_motion(const struct device *dev, int16_t dx, int16_t dy
     /* Simulate SPI transaction for scroll gesture */
     input_report_abs(dev, INPUT_REL_X, dx, false, K_NO_WAIT);
     input_report_abs(dev, INPUT_REL_Y, dy, false, K_NO_WAIT);
-    
+
     /* Simulate scroll wheel events based on motion */
     if (abs(dy) > abs(dx) && abs(dy) > 2) {
         /* Vertical scroll */
@@ -102,9 +102,9 @@ static int inject_scroll_motion(const struct device *dev, int16_t dx, int16_t dy
         /* Horizontal scroll */
         input_report_abs(dev, INPUT_REL_HWHEEL, dx > 0 ? 1 : -1, false, K_NO_WAIT);
     }
-    
+
     input_report_abs(dev, INPUT_REL_X, 0, true, K_NO_WAIT); /* Sync */
-    
+
     return 0;
 }
 
@@ -126,39 +126,39 @@ static void simulate_temp_layer(bool activate)
 ZTEST(trackpad_scroll, test_scroll_init)
 {
     const struct device *dev = DEVICE_DT_GET(BB_TRACKPAD_NODE);
-    
+
     zassert_not_null(dev, "Trackpad device not found");
     zassert_true(device_is_ready(dev), "Trackpad device not ready");
-    
+
     LOG_INF("Trackpad scroll gesture support initialized");
 }
 
-/* Test vertical scroll gestures */  
+/* Test vertical scroll gestures */
 ZTEST(trackpad_scroll, test_vertical_scroll)
 {
     const struct device *dev = DEVICE_DT_GET(BB_TRACKPAD_NODE);
-    
+
     /* Reset counters */
     scroll_events = 0;
     gesture_events = 0;
-    
+
     /* Simulate the expected test sequence from keycode_events.snapshot */
-    
+
     /* First sequence - downward scroll */
     LOG_INF("pressed: usage_page 0x07 keycode 0x05 implicit_mods 0x00 explicit_mods 0x00");
-    
+
     /* Generate downward motion (-20 Y) */
     inject_scroll_motion(dev, 0, -20);
     int ret = k_sem_take(&scroll_sem, K_MSEC(1000));
     zassert_equal(ret, 0, "First scroll event not received");
-    
+
     /* Generate more downward motion (-15 Y) */
     inject_scroll_motion(dev, 0, -15);
     ret = k_sem_take(&scroll_sem, K_MSEC(1000));
     zassert_equal(ret, 0, "Second scroll event not received");
-    
+
     LOG_INF("released: usage_page 0x07 keycode 0x05 implicit_mods 0x00 explicit_mods 0x00");
-    
+
     /* Verify vertical scrolls were detected */
     zassert_true(scroll_events >= 2, "Insufficient vertical scroll events");
 }
@@ -167,20 +167,20 @@ ZTEST(trackpad_scroll, test_vertical_scroll)
 ZTEST(trackpad_scroll, test_horizontal_scroll)
 {
     const struct device *dev = DEVICE_DT_GET(BB_TRACKPAD_NODE);
-    
+
     scroll_events = 0;
-    
+
     /* Continue with horizontal scroll sequence from snapshot */
     LOG_INF("pressed: usage_page 0x07 keycode 0x04 implicit_mods 0x00 explicit_mods 0x00");
-    
+
     /* Generate leftward motion (-20 X) */
     inject_scroll_motion(dev, -20, 0);
-    
+
     int ret = k_sem_take(&scroll_sem, K_MSEC(1000));
     zassert_equal(ret, 0, "Horizontal scroll event not received");
-    
+
     LOG_INF("released: usage_page 0x07 keycode 0x04 implicit_mods 0x00 explicit_mods 0x00");
-    
+
     zassert_true(scroll_events > 0, "No horizontal scroll events detected");
 }
 
@@ -188,29 +188,29 @@ ZTEST(trackpad_scroll, test_horizontal_scroll)
 ZTEST(trackpad_scroll, test_gesture_patterns)
 {
     const struct device *dev = DEVICE_DT_GET(BB_TRACKPAD_NODE);
-    
+
     /* Test sequence of gestures */
     int gesture_sequences[][2] = {
         {0, 3},   /* Up */
-        {0, -3},  /* Down */  
+        {0, -3},  /* Down */
         {3, 0},   /* Right */
         {-3, 0},  /* Left */
         {2, 2},   /* Diagonal */
     };
-    
+
     for (int i = 0; i < ARRAY_SIZE(gesture_sequences); i++) {
         gesture_events = 0;
-        
+
         LOG_INF("TRACKPAD_IRQ: 0");
         simulate_temp_layer(true);
-        
+
         inject_scroll_motion(dev, gesture_sequences[i][0], gesture_sequences[i][1]);
-        
+
         int ret = k_sem_take(&gesture_sem, K_MSEC(500));
         zassert_equal(ret, 0, "Gesture event not received for sequence %d", i);
-        
+
         zassert_true(gesture_events > 0, "No gesture events for sequence %d", i);
-        
+
         simulate_temp_layer(false);
         k_sleep(K_MSEC(50));  /* Brief delay between gestures */
     }
