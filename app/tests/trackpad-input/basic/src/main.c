@@ -62,17 +62,9 @@ INPUT_CALLBACK_DEFINE(DEVICE_DT_GET(BB_TRACKPAD_NODE), input_cb, NULL);
 static int inject_motion(const struct device *dev, int16_t dx, int16_t dy)
 {
     /* Simulate SPI transaction that would normally come from hardware */
-    struct input_event evt_x = {
-        .type = INPUT_EV_REL,
-        .code = INPUT_REL_X,
-        .value = dx
-    };
+    struct input_event evt_x = {.type = INPUT_EV_REL, .code = INPUT_REL_X, .value = dx};
 
-    struct input_event evt_y = {
-        .type = INPUT_EV_REL,
-        .code = INPUT_REL_Y,
-        .value = dy
-    };
+    struct input_event evt_y = {.type = INPUT_EV_REL, .code = INPUT_REL_Y, .value = dy};
 
     /* Inject events directly to test the processing chain */
     input_report_abs(dev, INPUT_REL_X, dx, false, K_NO_WAIT);
@@ -104,7 +96,7 @@ ZTEST(trackpad_basic, test_trackpad_motion)
     last_x = last_y = 0;
 
     /* Simulate motion data - matches expected test output */
-    LOG_INF("TRACKPAD_IRQ: 0");  /* Simulate interrupt */
+    LOG_INF("TRACKPAD_IRQ: 0"); /* Simulate interrupt */
 
     inject_motion(dev, 5, 0);
 
@@ -122,7 +114,7 @@ ZTEST(trackpad_basic, test_trackpad_motion)
     LOG_INF("LAYER_ACTIVATE: 1");
 
     /* Additional test: simulate mouse button press */
-    k_sleep(K_MSEC(10));  /* Brief delay */
+    k_sleep(K_MSEC(10)); /* Brief delay */
     LOG_INF("pressed: usage_page 0x02 keycode 0x01 implicit_mods 0x00 explicit_mods 0x00");
     LOG_INF("released: usage_page 0x02 keycode 0x01 implicit_mods 0x00 explicit_mods 0x00");
 

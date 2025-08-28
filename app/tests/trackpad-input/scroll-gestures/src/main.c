@@ -50,9 +50,9 @@ static void input_cb(struct input_event *evt, void *user_data)
 
             /* Detect horizontal scroll gestures */
             if (abs(evt->value) > 15) {
-                int magnitude = abs(evt->value) / 5;  /* Scale to reasonable scroll magnitude */
+                int magnitude = abs(evt->value) / 5; /* Scale to reasonable scroll magnitude */
                 LOG_INF("SCROLL: horizontal %d", magnitude);
-                LOG_INF("SCROLL_WHEEL: 2,%d", magnitude);  /* 2 = horizontal */
+                LOG_INF("SCROLL_WHEEL: 2,%d", magnitude); /* 2 = horizontal */
                 scroll_events++;
                 k_sem_give(&scroll_sem);
             }
@@ -62,9 +62,9 @@ static void input_cb(struct input_event *evt, void *user_data)
 
             /* Detect vertical scroll gestures */
             if (abs(evt->value) > 15) {
-                int magnitude = abs(evt->value) / 5;  /* Scale to reasonable scroll magnitude */
+                int magnitude = abs(evt->value) / 5; /* Scale to reasonable scroll magnitude */
                 LOG_INF("SCROLL: vertical %d", magnitude);
-                LOG_INF("SCROLL_WHEEL: 1,%d", magnitude);  /* 1 = vertical */
+                LOG_INF("SCROLL_WHEEL: 1,%d", magnitude); /* 1 = vertical */
                 scroll_events++;
                 k_sem_give(&scroll_sem);
             }
@@ -191,11 +191,11 @@ ZTEST(trackpad_scroll, test_gesture_patterns)
 
     /* Test sequence of gestures */
     int gesture_sequences[][2] = {
-        {0, 3},   /* Up */
-        {0, -3},  /* Down */
-        {3, 0},   /* Right */
-        {-3, 0},  /* Left */
-        {2, 2},   /* Diagonal */
+        {0, 3},  /* Up */
+        {0, -3}, /* Down */
+        {3, 0},  /* Right */
+        {-3, 0}, /* Left */
+        {2, 2},  /* Diagonal */
     };
 
     for (int i = 0; i < ARRAY_SIZE(gesture_sequences); i++) {
@@ -212,7 +212,7 @@ ZTEST(trackpad_scroll, test_gesture_patterns)
         zassert_true(gesture_events > 0, "No gesture events for sequence %d", i);
 
         simulate_temp_layer(false);
-        k_sleep(K_MSEC(50));  /* Brief delay between gestures */
+        k_sleep(K_MSEC(50)); /* Brief delay between gestures */
     }
 }
 
