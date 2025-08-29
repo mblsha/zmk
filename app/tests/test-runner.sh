@@ -6,19 +6,28 @@
 set -e
 
 # Configuration
-ZMK_ROOT="${ZMK_ROOT:-$(pwd)}"
+# Priority: Environment variable > Git root > Current directory
+if [[ -n "${GITHUB_WORKSPACE}" ]]; then
+    ZMK_ROOT="${ZMK_ROOT:-${GITHUB_WORKSPACE}}"
+else
+    ZMK_ROOT="${ZMK_ROOT:-$(git rev-parse --show-toplevel 2>/dev/null || pwd)}"
+fi
 ZMK_BUILD_DIR="${ZMK_BUILD_DIR:-${ZMK_ROOT}/build-test}"
 TEST_RESULTS_DIR="${ZMK_BUILD_DIR}/test-results"
 
 # Auto-detect if we're running from app/tests directory
-if [[ "$(basename "$(pwd)")" == "tests" && -d "drivers_test" ]]; then
+# Priority: Environment variable > Current directory detection > Default path
+if [[ -n "${ZMK_TESTS_ROOT}" ]]; then
+    # Use explicitly set environment variable
+    ZMK_TESTS_ROOT="${ZMK_TESTS_ROOT}"
+elif [[ "$(basename "$(pwd)")" == "tests" && -d "drivers_test" ]]; then
     # Running from app/tests - use current directory as test root
     ZMK_TESTS_ROOT="$(pwd)"
-elif [[ -d "app/tests/drivers_test" ]]; then
-    # Running from zmk root - use app/tests
-    ZMK_TESTS_ROOT="$(pwd)/app/tests"
+elif [[ -d "${ZMK_ROOT}/app/tests/drivers_test" ]]; then
+    # Use standard location relative to ZMK root
+    ZMK_TESTS_ROOT="${ZMK_ROOT}/app/tests"
 else
-    # Default to ZMK_ROOT/app/tests
+    # Default fallback
     ZMK_TESTS_ROOT="${ZMK_ROOT}/app/tests"
 fi
 VERBOSE="${ZMK_TESTS_VERBOSE:-0}"
