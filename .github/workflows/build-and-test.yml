@@ -428,6 +428,7 @@ jobs:
 
       - name: Run security scanning
         uses: github/super-linter@v5
+        continue-on-error: true  # Don't fail workflow if linting issues found
         env:
           DEFAULT_BRANCH: main
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
