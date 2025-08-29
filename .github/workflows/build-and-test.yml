@@ -427,7 +427,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run security scanning
-        uses: github/super-linter/slim@v6
+        uses: super-linter/super-linter/slim@v6
         env:
           DEFAULT_BRANCH: main
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -437,8 +437,13 @@ jobs:
           VALIDATE_YAML: true
           VALIDATE_MARKDOWN: true
           VALIDATE_GITHUB_ACTIONS: true
-          # Exclude test and binding directories from linting
-          FILTER_REGEX_EXCLUDE: "app/(tests|dts/bindings)/"
+          # Additional v6 configuration
+          LOG_LEVEL: DEBUG
+          CREATE_LOG_FILE: true
+          # Exclude test and binding directories from linting (proper regex pattern for v6)
+          FILTER_REGEX_EXCLUDE: '^app/(tests|dts/bindings)/.*'
+          # Ignore gitignored files (v6 feature)
+          IGNORE_GITIGNORED_FILES: true
 
       - name: Check for sensitive data
         run: |
