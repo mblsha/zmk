@@ -359,6 +359,12 @@ jobs:
       - get-changed-files
       - get-grouped-hardware
     steps:
+      - name: Ensure jq is available
+        run: |
+          if ! command -v jq >/dev/null 2>&1; then
+            sudo apt-get update -y
+            sudo apt-get install -y jq
+          fi
       - name: Debug needs context (schedule only)
         if: ${{ github.event_name == 'schedule' }}
         run: echo '${{ toJson(needs) }}' | jq .
