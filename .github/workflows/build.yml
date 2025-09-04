@@ -370,16 +370,19 @@ jobs:
         run: echo '${{ toJson(needs) }}' | jq .
 
       - name: Evaluate build outcomes
-        run: |
-          set -euo pipefail
-          results='${{ toJson(needs) }}'
-          echo "$results" | jq -e '
-            to_entries
-            | map(.value.result // "skipped")
-            | map(select(. == "failure" or . == "cancelled"))
-            | length
-            | . == 0
-          ' >/dev/null
+        uses: actions/github-script@v7
+        env:
+          NEEDS: ${{ toJson(needs) }}
+        with:
+          script: |
+            const needs = JSON.parse(process.env.NEEDS || '{}');
+            const results = Object.values(needs).map(n => (n && n.result) ? n.result : 'skipped');
+            const offenders = results.filter(r => r === 'failure' || r === 'cancelled');
+            if (offenders.length > 0) {
+              core.setFailed(`Aggregated failure due to: ${offenders.join(',')}`);
+            } else {
+              core.notice('Aggregated success: ignoring skipped/null results');
+            }
   get-grouped-hardware:
     runs-on: ubuntu-latest
     outputs:
