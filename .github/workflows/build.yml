@@ -370,9 +370,9 @@ jobs:
           echo "$results" | jq -e '
             to_entries
             | map(.value.result // "skipped")
-            | map(select(. != "skipped"))
-            | any(. == "failure" or . == "cancelled")
-            | not
+            | map(select(. == "failure" or . == "cancelled"))
+            | length
+            | . == 0
           ' >/dev/null
   get-grouped-hardware:
     runs-on: ubuntu-latest
