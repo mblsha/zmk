@@ -1,0 +1,61 @@
+# Copyright (c) 2023, My Name
+# SPDX-License-Identifier: Apache-2.0
+
+description: BlackBerry trackpad input device
+
+compatible: "blackberry,trackpad"
+
+include: [spi-device.yaml]
+
+properties:
+  irq-gpios:
+    type: phandle-array
+    description: |
+      GPIO used for motion interrupt from the trackpad.
+      This pin should be connected to the trackpad's motion interrupt output.
+
+  shutdown-gpios:
+    type: phandle-array
+    description: |
+      GPIO used to enable/disable the trackpad.
+      Setting this pin low puts the trackpad in shutdown mode.
+
+  swap-xy:
+    type: boolean
+    description: |
+      Swap X and Y axis data.
+
+  invert-x:
+    type: boolean
+    description: |
+      Invert X axis data.
+
+  invert-y:
+    type: boolean
+    description: |
+      Invert Y axis data.
+
+  scale-x:
+    type: int
+    default: 1
+    description: |
+      Scale factor for X axis movement. Higher values increase sensitivity.
+
+  scale-y:
+    type: int
+    default: 1
+    description: |
+      Scale factor for Y axis movement. Higher values increase sensitivity.
+
+  scroll-threshold:
+    type: int
+    default: 3
+    description: |
+      Minimum movement threshold to trigger scroll gesture detection.
+
+  scroll-timeout-ms:
+    type: int
+    default: 200
+    description: |
+      Timeout in milliseconds for scroll gesture recognition.
+

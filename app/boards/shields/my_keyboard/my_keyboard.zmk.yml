@@ -1,0 +1,12 @@
+file_format: "1"
+id: my_keyboard
+name: My Custom Keyboard
+type: shield
+url: https://github.com/yourusername/zmk-config-my-keyboard
+requires: [pro_micro]
+features:
+  - keys
+  - display
+  - haptic
+  - trackpad
+

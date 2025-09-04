@@ -1,0 +1,17 @@
+#include <behaviors.dtsi>
+#include <dt-bindings/zmk/keys.h>
+
+/ {
+    keymap {
+        compatible = "zmk,keymap";
+
+        default_layer {
+            // Simple 2x2 key matrix for testing
+            bindings = <
+                &kp Q  &kp W
+                &kp A  &kp S
+            >;
+        };
+    };
+};
+

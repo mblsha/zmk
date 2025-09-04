@@ -1,0 +1,13 @@
+if SHIELD_MY_KEYBOARD
+
+config ZMK_KEYBOARD_NAME
+    default "My Keyboard"
+
+config LVGL
+    default y
+
+config ZMK_DISPLAY
+    default y
+
+endif # SHIELD_MY_KEYBOARD
+

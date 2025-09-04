@@ -1,0 +1,10 @@
+# SPDX-License-Identifier: Apache-2.0
+
+config BLACKBERRY_TRACKPAD
+    bool "BlackBerry trackpad input device"
+    depends on SPI && GPIO && INPUT
+    help
+      Enable driver for BlackBerry trackpad optical pointing device.
+      This driver supports SPI-based BlackBerry trackpads commonly
+      found on BlackBerry devices.
+
