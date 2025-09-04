@@ -1,0 +1,7 @@
+#include "../behavior_keymap.dtsi"
+
+&kscan0 {
+    /* Leave events empty; this integration test targets build + DT composition */
+    events = <>;
+};
+

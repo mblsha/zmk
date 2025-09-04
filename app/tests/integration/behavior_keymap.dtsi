@@ -1,0 +1,45 @@
+#include <dt-bindings/zmk/keys.h>
+#include <behaviors.dtsi>
+#include <dt-bindings/zmk/kscan_mock.h>
+
+/* Force RC back to the 2-arg row/col variant for matrix transforms */
+#undef RC
+#include <dt-bindings/zmk/matrix_transform.h>
+
+/ {
+    chosen {
+        zmk,kscan = &kscan0;
+        zmk,matrix_transform = &default_transform;
+    };
+
+    default_transform: keymap_transform_0 {
+        compatible = "zmk,matrix-transform";
+        columns = <2>;
+        rows = <2>;
+        map = <
+            RC(0,0) RC(0,1)
+            RC(1,0) RC(1,1)
+        >;
+    };
+
+    kscan0: kscan {
+        compatible = "zmk,kscan-mock";
+        label = "KSCAN_MOCK";
+        rows = <2>;
+        columns = <2>;
+        exit-after;
+        events = <>;
+    };
+
+    keymap {
+        compatible = "zmk,keymap";
+
+        default_layer {
+            bindings = <
+                &kp A &kp B
+                &kp C &kp D
+            >;
+        }
+    };
+};
+

@@ -5,6 +5,7 @@ on:
 
 jobs:
   stale:
+    if: ${{ github.repository_owner == 'zmkfirmware' }}
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/stale@v9.1.0

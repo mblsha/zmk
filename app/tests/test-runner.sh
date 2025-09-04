@@ -237,35 +237,140 @@ run_behavioral_tests() {
 run_integration_tests() {
     log_info "Running integration tests..."
 
-    # Integration tests verify that multiple systems work together
-    local integration_scenarios=(
-        "haptic-trackpad-interaction"
-        "display-haptic-feedback"
-        "trackpad-display-update"
-        "full-system-integration"
-    )
-
     local failed_tests=0
 
-    for scenario in "${integration_scenarios[@]}"; do
-        log_info "Running integration scenario: $scenario"
-
-        # In a full implementation, these would be separate test suites
-        # For now, we simulate the test execution
-
-        # Simulate test execution time
-        sleep 0.5
-
-        # Mock test result (90% pass rate for demonstration)
-        if [[ $((RANDOM % 10)) -lt 9 ]]; then
-            log_success "$scenario"
-            echo "PASS: integration/$scenario" >> "$TEST_RESULTS_DIR/pass-fail.log"
+    # 1) Build drivers_test with both drivers enabled and validate DTS contains both nodes
+    local build_dir_enabled="$ZMK_BUILD_DIR/integration-enabled"
+    log_info "Building integration (both drivers enabled)..."
+    if [[ "$VERBOSE" == "1" ]]; then
+        west build -s "$ZMK_TESTS_ROOT/drivers_test" -d "$build_dir_enabled" -b native_posix -p -- \
+            -DCONFIG_ASSERT=y -DCONFIG_DRV2605=y -DCONFIG_BLACKBERRY_TRACKPAD=y
+    else
+        west build -s "$ZMK_TESTS_ROOT/drivers_test" -d "$build_dir_enabled" -b native_posix -p -- \
+            -DCONFIG_ASSERT=y -DCONFIG_DRV2605=y -DCONFIG_BLACKBERRY_TRACKPAD=y >/dev/null 2>&1
+    fi
+    if [[ $? -ne 0 ]]; then
+        log_error "integration/dts-devices-enabled build failed"
+        echo "FAIL: integration/dts-devices-enabled" >> "$TEST_RESULTS_DIR/pass-fail.log"
+        ((failed_tests++))
+    else
+        local dts="$build_dir_enabled/zephyr/zephyr.dts"
+        local conf="$build_dir_enabled/zephyr/.config"
+        [[ -f "$conf" ]] || conf="$build_dir_enabled/.config"
+        if grep -q '^CONFIG_DRV2605=y$' "$conf" && grep -q '^CONFIG_BLACKBERRY_TRACKPAD=y$' "$conf" \
+           && grep -q 'compatible = "ti,drv2605"' "$dts" \
+           && grep -q 'compatible = "blackberry,trackpad"' "$dts"; then
+            log_success "integration/dts-devices-enabled"
+            echo "PASS: integration/dts-devices-enabled" >> "$TEST_RESULTS_DIR/pass-fail.log"
         else
-            log_error "$scenario"
-            echo "FAIL: integration/$scenario" >> "$TEST_RESULTS_DIR/pass-fail.log"
+            log_error "integration/dts-devices-enabled (configs/nodes mismatch)"
+            echo "FAIL: integration/dts-devices-enabled" >> "$TEST_RESULTS_DIR/pass-fail.log"
             ((failed_tests++))
         fi
-    done
+    fi
+
+    # 2) Build drivers_test with both drivers disabled and validate DTS lacks both nodes
+    local build_dir_disabled="$ZMK_BUILD_DIR/integration-disabled"
+    log_info "Building integration (drivers disabled)..."
+    if [[ "$VERBOSE" == "1" ]]; then
+        west build -s "$ZMK_TESTS_ROOT/drivers_test" -d "$build_dir_disabled" -b native_posix -p -- \
+            -DCONFIG_ASSERT=y -DCONFIG_DRV2605=n -DCONFIG_BLACKBERRY_TRACKPAD=n
+    else
+        west build -s "$ZMK_TESTS_ROOT/drivers_test" -d "$build_dir_disabled" -b native_posix -p -- \
+            -DCONFIG_ASSERT=y -DCONFIG_DRV2605=n -DCONFIG_BLACKBERRY_TRACKPAD=n >/dev/null 2>&1
+    fi
+    if [[ $? -ne 0 ]]; then
+        log_error "integration/dts-devices-disabled build failed"
+        echo "FAIL: integration/dts-devices-disabled" >> "$TEST_RESULTS_DIR/pass-fail.log"
+        ((failed_tests++))
+    else
+        local dts2="$build_dir_disabled/zephyr/zephyr.dts"
+        local conf2="$build_dir_disabled/zephyr/.config"
+        [[ -f "$conf2" ]] || conf2="$build_dir_disabled/.config"
+        if ! grep -q '^CONFIG_DRV2605=y$' "$conf2" && ! grep -q '^CONFIG_BLACKBERRY_TRACKPAD=y$' "$conf2" \
+           && ! grep -q 'compatible = "ti,drv2605"' "$dts2" \
+           && ! grep -q 'compatible = "blackberry,trackpad"' "$dts2"; then
+            log_success "integration/dts-devices-disabled"
+            echo "PASS: integration/dts-devices-disabled" >> "$TEST_RESULTS_DIR/pass-fail.log"
+        else
+            log_error "integration/dts-devices-disabled (unexpected configs/nodes present)"
+            echo "FAIL: integration/dts-devices-disabled" >> "$TEST_RESULTS_DIR/pass-fail.log"
+            ((failed_tests++))
+        fi
+    fi
+
+    # 3) Run integration scenarios using run-test.sh harness (keymap-based)
+    if [[ -d "$ZMK_TESTS_ROOT/integration" ]]; then
+        local run_test_script
+        if [[ -f "$ZMK_TESTS_ROOT/../run-test.sh" ]]; then
+            run_test_script="$ZMK_TESTS_ROOT/../run-test.sh"
+        elif [[ -f "$ZMK_ROOT/app/run-test.sh" ]]; then
+            run_test_script="$ZMK_ROOT/app/run-test.sh"
+        fi
+
+        if [[ -n "$run_test_script" ]]; then
+            while IFS= read -r -d '' testcase; do
+                local tdir="$(dirname "$testcase")"
+                local name="$(echo "$tdir" | sed "s|$ZMK_TESTS_ROOT/||")"
+                log_info "Integration harness: $name"
+                if [[ "$VERBOSE" == "1" ]]; then
+                    ZMK_SRC_DIR="$ZMK_TESTS_ROOT/../" "$run_test_script" "$tdir"
+                else
+                    ZMK_SRC_DIR="$ZMK_TESTS_ROOT/../" "$run_test_script" "$tdir" >/dev/null 2>&1
+                fi
+                if [[ $? -eq 0 ]]; then
+                    # Post-build DT validation for specific scenarios
+                    local build_case_dir="$ZMK_BUILD_DIR/tests/$name"
+                    local dts_file="$build_case_dir/zephyr/zephyr.dts"
+                    local case_ok=1
+
+                    if [[ -f "$dts_file" ]]; then
+                        if [[ "$name" == integration/haptic-trackpad* ]]; then
+                            if ! grep -q 'compatible = "ti,drv2605"' "$dts_file"; then
+                                log_error "integration/$name: DRV2605 node missing in DTS"
+                                case_ok=0
+                            fi
+                            if ! grep -q 'compatible = "blackberry,trackpad"' "$dts_file"; then
+                                log_error "integration/$name: trackpad node missing in DTS"
+                                case_ok=0
+                            fi
+                        elif [[ "$name" == integration/display-haptic* ]]; then
+                            if ! grep -q 'compatible = "ti,drv2605"' "$dts_file"; then
+                                log_error "integration/$name: DRV2605 node missing in DTS"
+                                case_ok=0
+                            fi
+                        elif [[ "$name" == integration/full-system* ]]; then
+                            # Must include both drivers
+                            if ! grep -q 'compatible = "ti,drv2605"' "$dts_file"; then
+                                log_error "integration/$name: DRV2605 node missing in DTS"
+                                case_ok=0
+                            fi
+                            if ! grep -q 'compatible = "blackberry,trackpad"' "$dts_file"; then
+                                log_error "integration/$name: trackpad node missing in DTS"
+                                case_ok=0
+                            fi
+                        fi
+                    else
+                        log_warning "integration/$name: DTS file not found for post-checks"
+                    fi
+
+                    if [[ $case_ok -eq 1 ]]; then
+                        log_success "$name"
+                        echo "PASS: integration/$name" >> "$TEST_RESULTS_DIR/pass-fail.log"
+                    else
+                        echo "FAIL: integration/$name" >> "$TEST_RESULTS_DIR/pass-fail.log"
+                        ((failed_tests++))
+                    fi
+                else
+                    log_error "$name"
+                    echo "FAIL: integration/$name" >> "$TEST_RESULTS_DIR/pass-fail.log"
+                    ((failed_tests++))
+                fi
+            done < <(find "$ZMK_TESTS_ROOT/integration" -name "native_posix_64.keymap" -print0)
+        else
+            log_warning "run-test.sh not found; skipping keymap-based integration scenarios"
+        fi
+    fi
 
     return $failed_tests
 }
