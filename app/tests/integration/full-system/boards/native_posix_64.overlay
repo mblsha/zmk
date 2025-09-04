@@ -1,0 +1,60 @@
+/* Full-system integration overlay: both emulated devices present */
+
+/ {
+    aliases {
+        bb-trackpad = &bb_trackpad;
+    };
+
+    chosen {
+        zephyr,console = &uart0;
+        zephyr,shell-uart = &uart0;
+    };
+
+    /* SPI emulator with BlackBerry trackpad */
+    test_spi_emul: spi_emul@1000 {
+        compatible = "zephyr,spi-emul-controller";
+        reg = <0x1000 0x100>;
+        clock-frequency = <1000000>;
+        #address-cells = <1>;
+        #size-cells = <0>;
+        status = "okay";
+
+        bb_trackpad: bb_trackpad_emul@0 {
+            compatible = "blackberry,trackpad";
+            reg = <0>;
+            label = "BB_TRACKPAD";
+            spi-max-frequency = <1000000>;
+            irq-gpios = <&test_gpio 7 GPIO_ACTIVE_LOW>;
+            scale-x = <2>;
+            scale-y = <2>;
+            invert-x;
+            status = "okay";
+        };
+    };
+
+    /* I2C emulator with DRV2605 */
+    test_i2c_emul: i2c_emul@3000 {
+        compatible = "zephyr,i2c-emul";
+        reg = <0x3000 0x100>;
+        #address-cells = <1>;
+        #size-cells = <0>;
+        status = "okay";
+
+        drv2605_emul: drv2605@5a {
+            compatible = "ti,drv2605";
+            reg = <0x5a>;
+            status = "okay";
+        };
+    };
+
+    /* GPIO emulator */
+    test_gpio: gpio_emul@2000 {
+        compatible = "zephyr,gpio-emul";
+        reg = <0x2000 4>;
+        gpio-controller;
+        #gpio-cells = <2>;
+        ngpios = <32>;
+        status = "okay";
+    };
+};
+
